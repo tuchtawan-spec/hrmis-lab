@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HRMIS Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F5F9;--surface:#FFFFFF;--navy:#1E2A5E;--navy2:#2B3A78;--teal:#1FA78F;--text:#1B2233;--muted:#5A6377;--line:#DCE1EA;--link:#2A5DC1;--soft:#EDF1F8;--ok:#1B7F52;--warn:#9A6212;--bad:#B3362A;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1426;--surface:#171E35;--navy:#1A2452;--navy2:#26336B;--teal:#34C2A8;--text:#E5E9F3;--muted:#9CA5BA;--line:#2A3352;--link:#86A9F2;--soft:#1E2743;--ok:#5ACB91;--warn:#E3B061;--bad:#F08A7E;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1426;--surface:#171E35;--navy:#1A2452;--navy2:#26336B;--teal:#34C2A8;--text:#E5E9F3;--muted:#9CA5BA;--line:#2A3352;--link:#86A9F2;--soft:#1E2743;--ok:#5ACB91;--warn:#E3B061;--bad:#F08A7E;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans Thai',system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif;font-size:15px;line-height:1.55}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--navy);color:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 20px;min-height:54px}
+.brand{font-weight:600;font-size:17px;color:#fff;text-decoration:none}
+.brand small{font-weight:400;color:#C9D0E6;margin-left:8px;font-size:13px}
+.sp{flex:1}
+.top select,.top button{font:inherit;font-size:13px;background:var(--navy2);color:#fff;border:1px solid rgba(255,255,255,.28);border-radius:6px;padding:6px 10px;cursor:pointer}
+.top label{font-size:12px;color:#C9D0E6;display:flex;align-items:center;gap:6px}
+.shell{display:grid;grid-template-columns:290px minmax(0,1fr)}
+#side{background:var(--surface);border-right:1px solid var(--line);padding:12px;position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto}
+.homelink{display:block;padding:8px 10px;margin-bottom:8px;border-radius:6px;color:var(--text);text-decoration:none;font-weight:500}
+.homelink.act{background:var(--soft)}
+.mod{margin-bottom:6px}
+.modh{display:flex;align-items:center;gap:10px;width:100%;background:var(--navy);color:#fff;border:0;border-radius:6px;padding:9px 10px;text-align:left;font:inherit;font-weight:500;font-size:14px;line-height:1.3;cursor:pointer}
+.modh .th{display:block;font-size:12px;font-weight:400;color:#C9D0E6}
+.num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:600}
+.items{padding:4px 0 6px 6px;display:none}
+.mod.open .items,.tile .items{display:block}
+.it{display:block;padding:5px 10px;color:var(--link);font-size:14px;text-decoration:none;border-left:2px solid transparent;line-height:1.35}
+.it span{display:block;color:var(--muted);font-size:12px}
+.it:hover{background:var(--soft)}
+.it.act{border-left-color:var(--teal);background:var(--soft)}
+main{padding:24px 30px 60px;max-width:1180px;width:100%}
+.crumb{color:var(--muted);font-size:13px;margin:0 0 4px}
+h1{font-size:25px;font-weight:600;margin:0;line-height:1.3}
+h2{font-size:17px;font-weight:600;margin:26px 0 10px}
+.sub{color:var(--muted);margin:2px 0 0}
+.hint{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:0;padding:10px 14px;margin:16px 0 18px;font-size:14px;max-width:78ch}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-weight:500;color:var(--muted);background:var(--soft);padding:8px 12px;white-space:nowrap}
+td{padding:8px 12px;border-top:1px solid var(--line);vertical-align:middle}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.tot td{font-weight:600;background:var(--soft)}
+form.add{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;align-items:end;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;margin:0 0 16px}
+.f{display:flex;flex-direction:column;font-size:12px;color:var(--muted);gap:4px}
+.f.wide{grid-column:1/-1}
+input,select,textarea{font:inherit;font-size:14px;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--text);max-width:100%;min-width:0}
+textarea{min-height:80px;resize:vertical}
+td select,td input{padding:4px 6px;font-size:13px}
+.btn{font:inherit;font-size:14px;padding:7px 14px;border-radius:6px;border:1px solid var(--navy);background:var(--navy);color:#fff;cursor:pointer;white-space:nowrap}
+.btn.g{background:transparent;color:var(--text);border-color:var(--line)}
+.btn.t{background:var(--teal);border-color:var(--teal)}
+.btn.s{padding:3px 10px;font-size:13px}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.pill{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.pill.ok{color:var(--ok)}.pill.warn{color:var(--warn)}.pill.bad{color:var(--bad)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.stat b{display:block;font-size:26px;font-weight:600;line-height:1.2}
+.stat span{color:var(--muted);font-size:13px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.tile .modh{border-radius:0;cursor:default;padding:12px}
+.tile .items{padding:8px 4px 10px}
+.kan{display:grid;grid-template-columns:repeat(5,minmax(190px,1fr));gap:10px;overflow-x:auto;padding-bottom:6px}
+.col{background:var(--soft);border-radius:8px;padding:8px;min-height:140px}
+.col h3{font-size:13px;font-weight:500;margin:2px 4px 8px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:13px}
+.card b{font-weight:500;font-size:14px;display:block}
+.m{color:var(--muted)}
+.card .row{display:flex;gap:6px;margin-top:6px;align-items:center}
+.tree ul{list-style:none;padding-left:20px;margin:4px 0;border-left:1px dashed var(--line)}
+.tree>ul{border-left:0;padding-left:0}
+.tree li{margin:6px 0}
+.unit{display:inline-block;background:var(--navy);color:#fff;border-radius:6px;padding:4px 10px;font-weight:500;font-size:14px}
+.pos{font-size:13px;color:var(--muted);margin:3px 0 0 4px}
+.pos b{color:var(--text);font-weight:500}
+.bar{height:8px;background:var(--soft);border-radius:4px;overflow:hidden;min-width:80px}
+.bar i{display:block;height:100%;background:var(--teal)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.panel h3{font-size:15px;font-weight:600;margin:0 0 8px}
+.ex{list-style:none;padding:0;margin:0}
+.ex li{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.ex li:first-child{border-top:0}
+.ck{flex:none;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;color:#fff}
+.ex li.done .ck{background:var(--teal);border-color:var(--teal)}
+.ex li.done .tx{color:var(--muted);text-decoration:line-through}
+.ex .tx{flex:1;font-size:14px}
+.ex a{font-size:13px;color:var(--link)}
+.empty{color:var(--muted);padding:14px;background:var(--surface);border:1px dashed var(--line);border-radius:8px}
+.note{font-size:13px;color:var(--muted);max-width:78ch}
+.low{background:color-mix(in srgb,var(--bad) 14%,transparent)}
+dl.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:0;font-size:14px}
+dl.kv dt{color:var(--muted)}dl.kv dd{margin:0}
+.search{width:100%;max-width:420px;margin-bottom:12px}
+.ctx{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--navy);border-radius:0;padding:9px 14px;margin:0 0 18px;font-size:14px}
+.ctx b{font-weight:600}.ctx.warn{border-left-color:var(--warn)}
+.hdr{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.who{font-size:12px;color:#C9D0E6}
+.tag{font-size:12px;background:var(--teal);color:#fff;border-radius:999px;padding:2px 10px;white-space:nowrap}
+.hm{width:22px;height:22px;border-radius:4px;background:var(--soft);border:1px solid var(--line);display:inline-grid;place-items:center;font-size:12px;color:#fff}
+.hm.on{background:var(--teal);border-color:var(--teal)}
+td.c,th.c{text-align:center;padding-left:4px;padding-right:4px}
+.legend{columns:2 260px;font-size:13px;color:var(--muted);padding-left:22px;margin:10px 0 0}
+.teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:16px 0}
+.teams .panel{display:flex;flex-direction:column;gap:6px}
+.inline{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+body.portal{--navy:#0E5E55;--navy2:#137267}
+.navh{font-size:12px;color:var(--muted);margin:14px 10px 4px;font-weight:500}
+.accts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.acct{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;cursor:pointer;font:inherit;color:var(--text)}
+.acct:hover{border-color:var(--teal)}.acct b{font-weight:600}
+.acct[disabled]{opacity:.55;cursor:not-allowed}.acct[disabled]:hover{border-color:var(--line)}
+a.stat{color:var(--text);text-decoration:none}a.stat:hover{border-color:var(--teal)}
+.lab{border-left:3px solid var(--warn)}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;min-width:560px}
+.cal .hd{font-size:12px;color:var(--muted);text-align:center;padding:2px}
+.cal .d{min-height:78px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:12px;overflow:hidden}
+.cal .d b{font-weight:500}.cal .d.we{background:var(--soft)}.cal .d.hol{border-color:var(--teal)}.cal .d.today{outline:2px solid var(--navy);outline-offset:-1px}
+.ev{display:block;margin-top:3px;border-radius:4px;padding:1px 5px;font-size:11px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev.h{background:color-mix(in srgb,var(--teal) 20%,transparent)}.ev.l{background:color-mix(in srgb,var(--warn) 22%,transparent)}
+.denied{max-width:680px}.code403{font-size:56px;font-weight:600;color:var(--bad);line-height:1;margin:0 0 6px}
+.slip{max-width:620px}
+#toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:9px 16px;border-radius:6px;opacity:0;transition:opacity .2s;pointer-events:none;font-size:14px;z-index:30;max-width:90vw}
+#toast.on{opacity:1}
+.menu-btn{display:none}
+@media(max-width:880px){.shell{grid-template-columns:1fr}#side{display:none;position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}body.nav #side{display:block}.menu-btn{display:inline-block}main{padding:18px 16px 50px}.brand small{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="menu-btn" onclick="document.body.classList.toggle('nav')" aria-label="Toggle menu">Menu</button>
+  <a class="brand" href="#home">HRMIS Lab<small>ห้องปฏิบัติการระบบสารสนเทศทรัพยากรมนุษย์</small></a>
+  <span class="sp"></span>
+  <div id="hdr" class="hdr"></div>
+</header>
+<div class="shell">
+  <nav id="side" aria-label="Modules"></nav>
+  <main id="main"></main>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+const LS='hrmis-lab-v1';
+const uid=()=>Math.random().toString(36).slice(2,9);
+const today=()=>new Date().toISOString().slice(0,10);
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>'฿'+Math.round(n||0).toLocaleString('en-US');
+const num=n=>Math.round(n||0).toLocaleString('en-US');
+
+function seedBase(){
+  return {v:1,role:'hr',me:'e6',done:{},
+  units:[{id:'u1',name:'Executive office',parent:''},{id:'u2',name:'Human resources',parent:'u1'},{id:'u3',name:'Sales',parent:'u1'},{id:'u4',name:'Engineering',parent:'u1'},{id:'u5',name:'Finance',parent:'u1'}],
+  positions:[
+    {id:'p1',title:'Managing director',unit:'u1',grade:'M5',headcount:1,salary:150000},
+    {id:'p2',title:'HR manager',unit:'u2',grade:'M3',headcount:1,salary:65000},
+    {id:'p3',title:'HR officer',unit:'u2',grade:'S2',headcount:2,salary:28000},
+    {id:'p7',title:'Sales manager',unit:'u3',grade:'M3',headcount:1,salary:70000},
+    {id:'p4',title:'Sales executive',unit:'u3',grade:'S2',headcount:4,salary:25000},
+    {id:'p5',title:'Software engineer',unit:'u4',grade:'S3',headcount:4,salary:45000},
+    {id:'p6',title:'Accountant',unit:'u5',grade:'S2',headcount:2,salary:27000}],
+  employees:[
+    {id:'e1',code:'EMP001',name:'สมชาย ประเสริฐ',positionId:'p1',salary:150000,hireDate:'2015-03-01',status:'Active',email:'somchai@siamcraft.example',phone:'081-000-1001',address:'Bangkok',bank:'KBank 123-4-56789-0',emergency:'Spouse 081-000-2001'},
+    {id:'e2',code:'EMP002',name:'ณัฐยา วงศ์ษา',positionId:'p2',salary:65000,hireDate:'2019-06-15',status:'Active',email:'nattaya@siamcraft.example',phone:'081-000-1002',address:'Nonthaburi',bank:'SCB 222-3-33333-3',emergency:''},
+    {id:'e3',code:'EMP003',name:'พิมพ์ชนก ศรีสุข',positionId:'p3',salary:28000,hireDate:'2023-02-01',status:'Active',email:'pimchanok@siamcraft.example',phone:'081-000-1003',address:'',bank:'',emergency:''},
+    {id:'e4',code:'EMP004',name:'อนันต์ ชัยโย',positionId:'p4',salary:24000,hireDate:'2024-05-20',status:'Active',email:'anan@siamcraft.example',phone:'081-000-1004',address:'Pathum Thani',bank:'BBL 444-5-55555-5',emergency:'Mother 081-000-2004'},
+    {id:'e5',code:'EMP005',name:'กิตติพงษ์ รัตนะ',positionId:'p5',salary:46000,hireDate:'2022-09-01',status:'Active',email:'kittipong@siamcraft.example',phone:'081-000-1005',address:'Bangkok',bank:'KTB 555-6-66666-6',emergency:''},
+    {id:'e6',code:'EMP006',name:'ศิริพร แก้วมณี',positionId:'p5',salary:42000,hireDate:'2026-08-03',status:'Active',email:'siriporn@siamcraft.example',phone:'',address:'',bank:'',emergency:''},
+    {id:'e7',code:'EMP007',name:'วันชัย บุญมี',positionId:'p6',salary:27000,hireDate:'2021-11-01',status:'Active',email:'wanchai@siamcraft.example',phone:'081-000-1007',address:'Samut Prakan',bank:'KBank 777-8-88888-8',emergency:'Brother 081-000-2007'},
+    {id:'e8',code:'EMP008',name:'มาลี ทองดี',positionId:'p7',salary:72000,hireDate:'2018-04-02',status:'Active',email:'malee@siamcraft.example',phone:'081-000-1008',address:'Bangkok',bank:'SCB 888-9-99999-9',emergency:'Spouse 081-000-2008'}],
+  reqs:[{id:'r1',positionId:'p5',openings:1,status:'Posted',date:'2026-09-01',reason:'Team growth for new product'},{id:'r2',positionId:'p4',openings:2,status:'Pending',date:'2026-09-20',reason:'Expand northern region sales'}],
+  applicants:[
+    {id:'a1',name:'ธนพล ใจดี',email:'thanapol@mail.example',reqId:'r1',skills:'React, Node.js, 3 years',stage:'Screening',score:''},
+    {id:'a2',name:'ปวีณา มีสุข',email:'paweena@mail.example',reqId:'r1',skills:'Python, SQL, data pipelines',stage:'Interview',score:4,interview:{date:'2026-09-24',rating:4,notes:'Strong SQL, good communicator'}},
+    {id:'a3',name:'กฤษดา แสงทอง',email:'kritsada@mail.example',reqId:'r1',skills:'Java, Spring',stage:'Applied',score:''},
+    {id:'a4',name:'อรอุมา ศรีวงศ์',email:'onuma@mail.example',reqId:'r1',skills:'Digital marketing',stage:'Rejected',score:''}],
+  docs:[{id:'d1',empId:'e6',name:'ID card copy',status:'Verified'},{id:'d2',empId:'e6',name:'Degree certificate',status:'Pending'},{id:'d3',empId:'e6',name:'Bank book',status:'Pending'}],
+  contracts:[{id:'k1',empId:'e6',type:'Probation',start:'2026-08-03',end:'2026-11-29',status:'Active'},{id:'k2',empId:'e5',type:'Permanent',start:'2022-09-01',end:'',status:'Active'},{id:'k3',empId:'e4',type:'Permanent',start:'2024-05-20',end:'',status:'Active'}],
+  orient:{e6:{0:true,1:true,2:true}},
+  courses:[{id:'c1',title:'PDPA for HR practitioners',hours:3,comp:'Domain knowledge',mode:'Online'},{id:'c2',title:'Leadership fundamentals',hours:12,comp:'Leadership',mode:'Classroom'},{id:'c3',title:'Excel for HR analytics',hours:6,comp:'Data literacy',mode:'Online'},{id:'c4',title:'Customer-centric selling',hours:8,comp:'Communication',mode:'Classroom'}],
+  enrollments:[{id:'n1',empId:'e3',courseId:'c1',status:'Completed',score:88},{id:'n2',empId:'e5',courseId:'c3',status:'Registered',score:''},{id:'n3',empId:'e4',courseId:'c4',status:'Completed',score:79}],
+  comps:['Communication','Data literacy','Leadership','Domain knowledge'],
+  levels:{'e2|2':3,'e2|0':4,'e3|1':1,'e4|0':3,'e5|1':4,'e6|1':3,'e8|2':4},
+  kpis:[{id:'k1',empId:'e4',name:'New sales revenue (THB)',weight:60,target:1200000,actual:1000000},{id:'k2',empId:'e4',name:'New accounts opened',weight:40,target:10,actual:12},{id:'k3',empId:'e5',name:'Features shipped',weight:50,target:8,actual:7},{id:'k4',empId:'e5',name:'Releases without critical bugs (%)',weight:50,target:95,actual:97}],
+  feedback:[{id:'f1',empId:'e4',source:'Manager',rating:4,comment:'Reliable, closes deals'},{id:'f2',empId:'e4',source:'Peer',rating:3,comment:'Could share leads more'},{id:'f3',empId:'e5',source:'Manager',rating:5,comment:'Mentors juniors well'}],
+  careers:[{id:'cp1',empId:'e3',target:'p2',timeline:'2 to 3 years',action:'Lead the new onboarding project'}],
+  succession:[{id:'s1',positionId:'p2',empId:'e3',readiness:'1 to 2 years'}],
+  ot:[{id:'o1',empId:'e4',date:'2026-09-10',hours:6,mult:'1.5'},{id:'o2',empId:'e5',date:'2026-09-12',hours:4,mult:'1.5'}],
+  bonuses:[{id:'b1',empId:'e8',month:'2026-09',amount:15000,reason:'Quarterly sales target'}],
+  settings:{ssoRate:5,ssoCap:17500,ssoFloor:1650},
+  payrolls:[],
+  leaves:[{id:'l1',empId:'e4',type:'Annual',from:'2026-10-05',to:'2026-10-06',reason:'Family trip',status:'Pending'},{id:'l2',empId:'e7',type:'Sick',from:'2026-09-02',to:'2026-09-02',reason:'Fever',status:'Approved'}],
+  grievances:[{id:'g1',empId:'',subject:'Office air conditioning breaks down every afternoon',cat:'Workplace',status:'Open',date:'2026-09-18'}],
+  surveys:[{id:'v1',empId:'e3',q1:4,q2:3,q3:4},{id:'v2',empId:'e5',q1:5,q2:4,q3:4},{id:'v3',empId:'e7',q1:3,q2:3,q3:2}],
+  exits:[]};
+}
+let S;try{S=JSON.parse(localStorage.getItem(LS))}catch(e){}
+if(!S||!S.v)S=seed();S=migrate(S);
+const LL='hrmis-lab-local';let L={role:'hr',me:''};try{L={...L,...JSON.parse(localStorage.getItem(LL)||'{}')}}catch(e){}
+S.role=L.role||S.role;S.me=L.me||S.me;let SESSION=L.session||null;
+let MODE='loading',DB=null,USER=null,UID=null,INSTR=false,CANW=true;
+let TEAMS={},MEMBERS={},COURSE={title:'HR information systems lab',announcement:'',allowCreate:false,lockTeams:false},NAMES={};
+let synced={},inflight=new Set(),dirtyDone={},writeQ=Promise.resolve(),pendingRender=false,SYNC='';
+const LOCALK=['v','role','me','done'];
+const syncKeys=()=>Object.keys(S).filter(k=>!LOCALK.includes(k));
+const shareable=st=>{const o={};Object.keys(st).filter(k=>!LOCALK.includes(k)).forEach(k=>o[k]=st[k]);return JSON.parse(JSON.stringify(o))};
+function save(){L.role=S.role;L.me=S.me;L.session=SESSION;try{localStorage.setItem(LL,JSON.stringify(L))}catch(e){}
+  if(MODE==='solo'){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}}
+
+const MODULES=[
+ {n:1,en:'Workforce planning',th:'วางแผนกำลังคน',items:[['orgchart','Organization chart','โครงสร้างองค์กร'],['positions','Position management','จัดการตำแหน่งงาน'],['jd','Job description','คำบรรยายลักษณะงาน'],['budget','Budget planning','วางแผนงบประมาณบุคลากร']]},
+ {n:2,en:'Recruitment and selection',th:'สรรหาและคัดเลือก',items:[['reqs','Job requisition and posting','ขออนุมัติอัตราและประกาศรับสมัคร'],['ats','Applicant tracking system (ATS)','ติดตามสถานะผู้สมัครและขั้นตอน'],['cvdb','Resume/CV database','เก็บและค้นหาประวัติผู้สมัคร'],['interviews','Interview scheduling and evaluation','นัดสัมภาษณ์และบันทึกผลประเมิน']]},
+ {n:3,en:'Onboarding',th:'การต้อนรับพนักงานใหม่',items:[['profile','Employee profile','ประวัติพนักงาน'],['docs','Document management','เอกสาร'],['contracts','Contract management','สัญญาจ้าง'],['orientation','Orientation','ปฐมนิเทศ'],['ess','Employee self-service','พนักงานกรอกข้อมูลเอง']]},
+ {n:4,en:'Training and development',th:'การฝึกอบรมและการพัฒนา',items:[['lms','Learning management system (LMS)','ระบบอบรม'],['catalog','Course catalog','หลักสูตร'],['register','Training registration','สมัครอบรม'],['records','Learning record','ประวัติการอบรม'],['competency','Competency management','สมรรถนะ']]},
+ {n:5,en:'Performance management',th:'การบริหารผลการปฏิบัติงาน',items:[['kpi','KPI management','ตัวชี้วัด'],['appraisal','Performance appraisal','ประเมินผล'],['f360','360 feedback','ประเมินรอบด้าน'],['career','Career planning','วางแผนอาชีพ'],['succession','Succession planning','ผู้สืบทอดตำแหน่ง']]},
+ {n:6,en:'Compensation and benefits',th:'ค่าตอบแทนและสวัสดิการ',items:[['payroll','Payroll','เงินเดือน'],['ot','OT management','ค่าล่วงเวลา'],['bonus','Bonus management','โบนัส'],['tax','Tax management','ภาษี'],['sso','Social security','ประกันสังคม']]},
+ {n:7,en:'Employee experience',th:'การดูแลจนถึงวันสุดท้าย',items:[['leave','Leave management','ลางาน'],['grievance','Grievance management','รับเรื่องร้องเรียน'],['engagement','Employee engagement','ความผูกพัน'],['exit','Exit interview','สัมภาษณ์ก่อนลาออก'],['alumni','Alumni database','ฐานข้อมูลอดีตพนักงาน']]}
+];
+const ITEM={};MODULES.forEach(m=>m.items.forEach(i=>ITEM[i[0]]={en:i[1],th:i[2],mod:m}));
+
+const EX=[['position','Create a new position','positions'],['reqPosted','Approve and post a job requisition','reqs'],['applicant','Add an applicant to the ATS','ats'],['interview','Record an interview evaluation','interviews'],['hired','Hire an applicant so they become an employee','ats'],['ess','Sign in as an employee and update your contact details','me-profile','an employee'],['payslip','As an employee, open your own payslip','me-pay','an employee'],['denied','As an employee, try to open an HR page and see it blocked','payroll','an employee'],['mgrApproved',"Sign in as a manager and approve a team member's leave",'team-leave','a manager'],['enrolled','Register someone for a course','register'],['kpi','Set a KPI for an employee','kpi'],['payroll','Run payroll for the month','payroll'],['leaveApproved','As HR, approve a leave request','leave'],['exit','Record an exit interview','exit']];
+
+const emp=id=>S.employees.find(e=>e.id===id);
+const pos=id=>S.positions.find(p=>p.id===id);
+const unit=id=>S.units.find(u=>u.id===id);
+const empName=id=>id?esc(emp(id)?.name||'Unknown'):'<span class="m">Anonymous</span>';
+const posT=id=>esc(pos(id)?.title||'None');
+const active=()=>S.employees.filter(e=>e.status==='Active');
+const empOpts=()=>active().map(e=>[e.id,e.code+' '+e.name]);
+const posOpts=()=>S.positions.map(p=>[p.id,p.title]);
+const unitOpts=()=>S.units.map(u=>[u.id,u.name]);
+const courseOpts=()=>S.courses.map(c=>[c.id,c.title]);
+const isHR=()=>!!(SESSION&&SESSION.kind==='hr');
+function pill(s){const m={Active:'ok',Approved:'ok',Allowed:'ok',Yes:'ok',Done:'ok',Blocked:'bad',No:'bad','In progress':'warn',Posted:'ok',Verified:'ok',Completed:'ok',Resolved:'ok',Hired:'ok','Ready now':'ok',Permanent:'ok',Pending:'warn',Registered:'warn',Open:'warn',Investigating:'warn',Probation:'warn',Screening:'warn',Interview:'warn',Offer:'warn',Rejected:'bad',Exited:'bad',Missing:'bad'};return `<span class="pill ${m[s]||''}">${esc(s)}</span>`}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2600)}
+function mark(k){if(!S.done[k]){const v=MODE==='class'?{at:Date.now(),by:UID}:{at:Date.now()};S.done[k]=v;if(MODE==='class')dirtyDone[k]=v;const x=EX.find(e=>e[0]===k);if(x)setTimeout(()=>toast('Exercise complete: '+x[1]),900)}}
+
+function table(heads,rows,empty,numCols=[]){
+  if(!rows.length)return `<p class="empty">${empty||'No records yet. Use the form above to add one.'}</p>`;
+  return `<div class="tw"><table><thead><tr>${heads.map((h,i)=>`<th class="${numCols.includes(i)?'n':''}">${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr class="${r.cls||''}">${r.map((c,i)=>`<td class="${numCols.includes(i)?'n':''}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+function optHtml(o,cur){return o.map(x=>{const[v,l]=Array.isArray(x)?x:[x,x];return `<option value="${esc(v)}" ${String(v)===String(cur)?'selected':''}>${esc(l)}</option>`}).join('')}
+function fieldHtml(f){
+  const o=typeof f.o==='function'?f.o():f.o;const v=typeof f.v==='function'?f.v():(f.v??'');let inner;
+  if(o)inner=`<select name="${f.k}" ${f.req?'required':''}><option value="">Choose</option>${optHtml(o,v)}</select>`;
+  else if(f.t==='area')inner=`<textarea name="${f.k}" ${f.req?'required':''}>${esc(v)}</textarea>`;
+  else inner=`<input name="${f.k}" type="${f.t||'text'}" ${f.req?'required':''} ${f.t==='number'?'step="any" min="0"':''} value="${esc(v)}" ${f.ph?`placeholder="${esc(f.ph)}"`:''}>`;
+  return `<label class="f${f.wide?' wide':''}">${f.l}${inner}</label>`}
+function inl(coll,id,k,opts,cur){return `<select aria-label="${k}" onchange="setF('${coll}','${id}','${k}',this.value)">${optHtml(opts,cur)}</select>`}
+const CFG={};
+function crud(key,c){
+  CFG[key]=c;const rows=S[c.coll].filter(c.filter||(()=>true));let h='';
+  if(!c.noAdd)h+=`<form class="add" onsubmit="return addRow(event,'${key}')">${c.fields.map(fieldHtml).join('')}<div><button class="btn">${c.add||'Add'}</button></div></form>`;
+  const heads=c.cols.map(x=>x[0]);if(!c.noDel)heads.push('');
+  h+=table(heads,rows.map(r=>{const a=c.cols.map(x=>x[1](r));if(!c.noDel)a.push(`<button class="btn g s" onclick="delRow('${c.coll}','${r.id}')">Delete</button>`);return a}),c.empty,c.num||[]);
+  return h}
+function addRow(e,key){
+  e.preventDefault();const c=CFG[key];const fd=new FormData(e.target);const o={id:uid(),...(typeof c.def==='function'?c.def():c.def||{})};
+  c.fields.forEach(f=>{let v=fd.get(f.k);if(f.t==='number')v=+v||0;o[f.k]=v});
+  if(c.valid){const err=c.valid(o);if(err){toast(err);return false}}
+  S[c.coll].push(o);c.after&&c.after(o);save();toast(c.msg||'Added');render();return false}
+function delRow(coll,id){S[coll]=S[coll].filter(x=>x.id!==id);save();toast('Deleted');render()}
+function setF(coll,id,k,v){const o=S[coll].find(x=>x.id===id);if(!o)return;o[k]=v;
+  if(coll==='reqs'&&v==='Posted')mark('reqPosted');
+  if(coll==='leaves'){o.decidedBy='hr';o.decidedAt=Date.now();audit(v+' leave for '+(emp(o.empId)?.name||''));if(v==='Approved')mark('leaveApproved')}
+  save();toast('Updated');render()}
+
+/* payroll maths */
+const otPay=o=>{const e=emp(o.empId);return e?o.hours*(e.salary/30/8)*(+o.mult):0};
+const ssoOf=sal=>Math.min(Math.max(sal,S.settings.ssoFloor),S.settings.ssoCap)*S.settings.ssoRate/100;
+var BR=[[150000,0],[300000,.05],[500000,.10],[750000,.15],[1000000,.20],[2000000,.25],[5000000,.30],[Infinity,.35]];
+function taxCalc(monthly,sso){const inc=monthly*12,exp=Math.min(inc*.5,100000),allow=60000,ss=sso*12,taxable=Math.max(0,inc-exp-allow-ss);let t=0,prev=0;for(const[cap,r]of (BR||[[150000,0],[300000,.05],[500000,.10],[750000,.15],[1000000,.20],[2000000,.25],[5000000,.30],[Infinity,.35]])){if(taxable>prev)t+=(Math.min(taxable,cap)-prev)*r;prev=cap}return{inc,exp,allow,ss,taxable,annual:t,monthly:t/12}}
+function payLine(e,month){return calcLine(e,S,month)}
+const days=(a,b)=>workDays(a,b);
+const QUOTA={Sick:30,Annual:6,Personal:3};
+
+let ui={jd:'',cvq:'',view:'',pm:'2026-09',openMod:0};
+
+const SC={
+home:{r(){
+  const openReq=S.reqs.filter(r=>r.status!=='Closed').length;
+  const pipe=S.applicants.filter(a=>!['Hired','Rejected'].includes(a.stage)).length;
+  const pend=S.leaves.filter(l=>l.status==='Pending').length;
+  const doneN=EX.filter(x=>S.done[x[0]]).length;
+  const cls=MODE==='class';
+  return `<h1>${cls?"Your team's company":'Your practice company'}: Siam Craft Co.</h1><p class="sub">บริษัทจำลองสำหรับฝึกใช้ระบบสารสนเทศทรัพยากรมนุษย์ ข้อมูลทั้งหมดเป็นข้อมูลสมมติ</p>
+  ${cls&&COURSE.announcement?`<div class="hint"><b>From your instructor:</b> <span style="white-space:pre-line">${esc(COURSE.announcement)}</span></div>`:''}
+  <div class="stats"><div class="stat"><b>${active().length}</b><span>Active employees</span></div><div class="stat"><b>${openReq}</b><span>Open requisitions</span></div><div class="stat"><b>${pipe}</b><span>Applicants in pipeline</span></div><div class="stat"><b>${pend}</b><span>Leave requests to review</span></div></div>
+  <div class="grid2" style="grid-template-columns:minmax(0,2fr) minmax(280px,1fr);align-items:start">
+   <div><h2 style="margin-top:0">Modules</h2><div class="tiles">${MODULES.map(m=>`<div class="tile"><div class="modh"><span class="num">${m.n}</span><span>${m.en}<span class="th">${m.th}</span></span></div><div class="items">${m.items.map(i=>`<a class="it" href="#${i[0]}">${i[1]}<span>${i[2]}</span></a>`).join('')}</div></div>`).join('')}</div></div>
+   <div class="panel"><h3>Lab exercises (${doneN} of ${EX.length})</h3><div class="bar" style="margin-bottom:10px"><i style="width:${Math.round(doneN/EX.length*100)}%"></i></div>
+   <p class="note" style="margin:0 0 6px">Work through these in order to follow one employee through the whole lifecycle. Some need you to sign out and sign in as an employee or manager. Each ticks itself off when you do it${MODE==='class'?', and your whole team shares this progress':''}.</p>
+   <a class="btn t s" href="#progress" style="display:inline-block;margin-bottom:8px;text-decoration:none">Download my progress report</a><ul class="ex">${EX.map(x=>`<li class="${S.done[x[0]]?'done':''}"><span class="ck">${S.done[x[0]]?'✓':''}</span><span class="tx">${x[1]}${S.done[x[0]]&&S.done[x[0]].at?`<br><span class="m" style="font-size:12px;text-decoration:none">${S.done[x[0]].by?'by '+nm(S.done[x[0]].by)+', ':'Done '}${ago(S.done[x[0]].at)}</span>`:''}</span>${x[3]?`<span class="m" style="font-size:12px;white-space:nowrap;text-align:right">Sign in as<br>${x[3]}</span>`:`<a href="#${x[2]}">Open</a>`}</li>`).join('')}</ul></div>
+  </div>`}},
+
+orgchart:{d:'The chart is built live from units, positions, and employees. Add a position or hire someone and it updates here.',r(){
+  const tree=p=>{const kids=S.units.filter(u=>(u.parent||'')===p);if(!kids.length)return '';return `<ul>${kids.map(u=>`<li><span class="unit">${esc(u.name)}</span>${S.positions.filter(x=>x.unit===u.id).map(x=>{const f=active().filter(e=>e.positionId===x.id);return `<div class="pos"><b>${esc(x.title)}</b> (${f.length}/${x.headcount}) ${f.map(e=>esc(e.name)).join(', ')||'<em>vacant</em>'}</div>`}).join('')}${tree(u.id)}</li>`).join('')}</ul>`};
+  return `<div class="tree">${tree('')}</div><h2>Add an organizational unit</h2>`+crud('units',{coll:'units',fields:[{k:'name',l:'Unit name',req:1},{k:'parent',l:'Reports to',o:unitOpts}],cols:[['Unit',r=>esc(r.name)],['Reports to',r=>esc(unit(r.parent)?.name||'None (top level)')]],add:'Add unit',msg:'Unit added'})}},
+
+positions:{d:'Positions are the slots on the org chart. Recruitment (module 2) can only open requisitions against a position that exists here.',r(){
+  return crud('positions',{coll:'positions',fields:[{k:'title',l:'Position title',req:1},{k:'unit',l:'Unit',o:unitOpts,req:1},{k:'grade',l:'Grade',o:['S1','S2','S3','M1','M3','M5'],req:1},{k:'headcount',l:'Approved headcount',t:'number',req:1},{k:'salary',l:'Budget salary per month',t:'number',req:1}],
+  cols:[['Title',r=>esc(r.title)],['Unit',r=>esc(unit(r.unit)?.name)],['Grade',r=>esc(r.grade)],['Filled',r=>`${active().filter(e=>e.positionId===r.id).length} / ${r.headcount}`],['Budget salary',r=>money(r.salary)]],num:[3,4],add:'Create position',msg:'Position created',after:()=>mark('position')})}},
+
+jd:{d:'Write the job description for a position. Recruiters see it when they post the job.',r(){
+  const p=pos(ui.jd)||S.positions[0];ui.jd=p.id;const j=p.jd||{};
+  return `<form class="add" onsubmit="return saveJD(event)"><label class="f">Position<select onchange="ui.jd=this.value;render()">${optHtml(posOpts(),p.id)}</select></label>
+  <label class="f wide">Job purpose<textarea name="purpose">${esc(j.purpose)}</textarea></label><label class="f wide">Key responsibilities<textarea name="duties">${esc(j.duties)}</textarea></label><label class="f wide">Qualifications<textarea name="quals">${esc(j.quals)}</textarea></label><div><button class="btn">Save job description</button></div></form>
+  <div class="panel"><h3>${esc(p.title)}</h3><dl class="kv"><dt>Unit</dt><dd>${esc(unit(p.unit)?.name)}</dd><dt>Grade</dt><dd>${esc(p.grade)}</dd><dt>Purpose</dt><dd>${esc(j.purpose)||'<span class="m">Not written yet</span>'}</dd><dt>Responsibilities</dt><dd style="white-space:pre-line">${esc(j.duties)||'<span class="m">Not written yet</span>'}</dd><dt>Qualifications</dt><dd style="white-space:pre-line">${esc(j.quals)||'<span class="m">Not written yet</span>'}</dd></dl></div>`}},
+
+budget:{d:'Planned cost comes from approved headcount times budget salary. Actual cost comes from the salaries of people in those positions.',r(){
+  let tp=0,ta=0;const rows=S.units.map(u=>{const ps=S.positions.filter(p=>p.unit===u.id);const plan=ps.reduce((s,p)=>s+p.salary*p.headcount,0);const act=active().filter(e=>ps.some(p=>p.id===e.positionId)).reduce((s,e)=>s+e.salary,0);tp+=plan;ta+=act;return [esc(u.name),money(plan),money(act),money(plan-act),money(plan*12)]});
+  const tot=[ '<b>Total</b>',money(tp),money(ta),money(tp-ta),money(tp*12)];tot.cls='tot';rows.push(tot);
+  return table(['Unit','Planned per month','Actual per month','Unused budget','Planned per year'],rows,'',[1,2,3,4])+`<p class="note">Unused budget is roughly the cost of your vacancies. Try raising a headcount in Position management and watch this table change.</p>`}},
+
+reqs:{d:'A manager requests headcount, HR approves it, then posts it. Change the status to Posted so applicants can apply.',r(){
+  return crud('reqs',{coll:'reqs',fields:[{k:'positionId',l:'Position',o:posOpts,req:1},{k:'openings',l:'Openings',t:'number',req:1,v:1},{k:'reason',l:'Justification',req:1,ph:'Replacement, growth, new project'}],def:()=>({status:'Pending',date:today()}),
+  cols:[['Position',r=>posT(r.positionId)],['Openings',r=>r.openings],['Requested',r=>esc(r.date)],['Justification',r=>esc(r.reason)],['Hired',r=>S.applicants.filter(a=>a.reqId===r.id&&a.stage==='Hired').length],['Status',r=>inl('reqs',r.id,'status',['Pending','Approved','Posted','Closed'],r.status)]],num:[1,4],add:'Submit requisition',msg:'Requisition submitted'})}},
+
+ats:{d:'Move applicants through the stages. When someone reaches Offer, press Hire to create their employee record in module 3.',r(){
+  const posted=S.reqs.filter(r=>r.status==='Posted');
+  const st=['Applied','Screening','Interview','Offer','Hired'];
+  CFG.ats={coll:'applicants',fields:[{k:'name',l:'Full name',req:1},{k:'email',l:'Email',t:'email',req:1},{k:'reqId',l:'Applying for',o:()=>posted.map(r=>[r.id,pos(r.positionId)?.title]),req:1},{k:'skills',l:'Skills and experience',ph:'Payroll, Excel, 2 years'}],def:{stage:'Applied',score:''},msg:'Applicant added',after:()=>mark('applicant')};
+  const form=posted.length?`<form class="add" onsubmit="return addRow(event,'ats')">${CFG.ats.fields.map(fieldHtml).join('')}<div><button class="btn">Add applicant</button></div></form>`:`<p class="empty">No requisition is posted yet. <a href="#reqs">Post one in Job requisition</a> before adding applicants.</p>`;
+  const card=a=>`<div class="card"><b>${esc(a.name)}</b><span class="m">${posT(S.reqs.find(r=>r.id===a.reqId)?.positionId)}</span><div class="m">${esc(a.skills)}</div>${a.score?`<div>Interview score ${a.score}/5</div>`:''}<div class="row">${a.stage==='Hired'?pill('Hired'):`<select aria-label="Stage for ${esc(a.name)}" onchange="moveStage('${a.id}',this.value)">${optHtml(['Applied','Screening','Interview','Offer','Rejected'],a.stage)}</select>${a.stage==='Offer'?`<button class="btn t s" onclick="hire('${a.id}')">Hire</button>`:''}`}</div></div>`;
+  const rej=S.applicants.filter(a=>a.stage==='Rejected').length;
+  return form+`<div class="kan">${st.map(s=>`<div class="col"><h3>${s} (${S.applicants.filter(a=>a.stage===s).length})</h3>${S.applicants.filter(a=>a.stage===s).map(card).join('')}</div>`).join('')}</div><p class="note">${rej} rejected applicant${rej===1?'':'s'} kept in the <a href="#cvdb">CV database</a> for future roles.</p>`}},
+
+cvdb:{d:'Every applicant stays searchable here, including rejected ones. Search by name or skill.',r(){
+  const q=ui.cvq.toLowerCase();const rows=S.applicants.filter(a=>!q||(a.name+' '+a.skills+' '+a.email).toLowerCase().includes(q));
+  return `<input class="search" type="search" placeholder="Search name or skill, e.g. SQL" value="${esc(ui.cvq)}" oninput="ui.cvq=this.value;clearTimeout(ui.t);ui.t=setTimeout(()=>{render();const s=document.querySelector('.search');s.focus();s.setSelectionRange(s.value.length,s.value.length)},250)">`+
+  table(['Name','Email','Skills and experience','Applied for','Stage'],rows.map(a=>[esc(a.name),esc(a.email),esc(a.skills),posT(S.reqs.find(r=>r.id===a.reqId)?.positionId),pill(a.stage)]),'No applicants match that search.')}},
+
+interviews:{d:'Schedule an interview and record the panel score. The score shows on the applicant card in the ATS.',r(){
+  const cand=S.applicants.filter(a=>['Screening','Interview','Offer'].includes(a.stage));
+  const rows=S.applicants.filter(a=>a.interview).map(a=>[esc(a.name),posT(S.reqs.find(r=>r.id===a.reqId)?.positionId),esc(a.interview.date),a.interview.rating+' / 5',esc(a.interview.notes),pill(a.stage)]);
+  return `<form class="add" onsubmit="return saveInterview(event)">${fieldHtml({k:'aid',l:'Applicant',o:cand.map(a=>[a.id,a.name]),req:1})}${fieldHtml({k:'date',l:'Interview date',t:'date',req:1,v:today()})}${fieldHtml({k:'rating',l:'Panel rating',o:[['5','5 Excellent'],['4','4 Good'],['3','3 Acceptable'],['2','2 Weak'],['1','1 Poor']],req:1})}${fieldHtml({k:'notes',l:'Evaluation notes',wide:1})}<div><button class="btn">Save evaluation</button></div></form>`+table(['Applicant','Position','Date','Rating','Notes','Stage'],rows,'No interviews recorded yet.')}},
+
+profile:{d:'The employee record is the hub of the system. Open any employee to see data from every module in one place.',r(){
+  let h=table(['Code','Name','Position','Unit','Hired','Status',''],S.employees.map(e=>[esc(e.code),esc(e.name),posT(e.positionId),esc(unit(pos(e.positionId)?.unit)?.name),esc(e.hireDate),pill(e.status),`<button class="btn g s" onclick="ui.view='${e.id}';render()">View</button>`]));
+  const e=emp(ui.view);
+  if(e){const p=payLine(e,ui.pm);h=`<div class="panel" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>${esc(e.name)} (${esc(e.code)})</h3><button class="btn g s" onclick="ui.view='';render()">Close</button></div>
+  <div class="grid2"><dl class="kv"><dt>Position</dt><dd>${posT(e.positionId)}</dd><dt>Status</dt><dd>${pill(e.status)}</dd><dt>Hire date</dt><dd>${esc(e.hireDate)}</dd><dt>Reports to</dt><dd>${mgrName(e.managerId)}</dd><dt>Email</dt><dd>${esc(e.email)}</dd><dt>Phone</dt><dd>${esc(e.phone)||'<span class="m">Missing</span>'}</dd><dt>Salary</dt><dd>${money(e.salary)}</dd></dl>
+  <dl class="kv"><dt>Contracts (3)</dt><dd>${S.contracts.filter(k=>k.empId===e.id).map(k=>esc(k.type)).join(', ')||'None'}</dd><dt>Documents (3)</dt><dd>${S.docs.filter(d=>d.empId===e.id).length} on file</dd><dt>Courses (4)</dt><dd>${S.enrollments.filter(n=>n.empId===e.id).map(n=>esc(S.courses.find(c=>c.id===n.courseId)?.title)).join(', ')||'None'}</dd><dt>KPIs (5)</dt><dd>${S.kpis.filter(k=>k.empId===e.id).length}</dd><dt>Net pay (6)</dt><dd>${money(p.net)} for ${ui.pm}</dd><dt>Leave (7)</dt><dd>${S.leaves.filter(l=>l.empId===e.id).length} request(s)</dd></dl></div>
+  <p class="note">Numbers in brackets are the module each piece of data comes from.</p></div>`+h}
+  return h}},
+
+docs:{d:'Track the documents each new hire must hand in. Change status to Verified once HR has checked the original.',r(){
+  return crud('docs',{coll:'docs',fields:[{k:'empId',l:'Employee',o:empOpts,req:1},{k:'name',l:'Document',o:['ID card copy','House registration','Degree certificate','Bank book','Medical certificate','Photo'],req:1}],def:{status:'Pending'},
+  cols:[['Employee',r=>empName(r.empId)],['Document',r=>esc(r.name)],['Status',r=>inl('docs',r.id,'status',['Pending','Verified'],r.status)]],add:'Add document',msg:'Document added'})}},
+
+contracts:{d:'New hires start on a probation contract. Add a Permanent contract when they pass probation.',r(){
+  return crud('contracts',{coll:'contracts',fields:[{k:'empId',l:'Employee',o:empOpts,req:1},{k:'type',l:'Contract type',o:['Probation','Permanent','Fixed-term'],req:1},{k:'start',l:'Start date',t:'date',req:1,v:today()},{k:'end',l:'End date (optional)',t:'date'}],def:{status:'Active'},
+  cols:[['Employee',r=>empName(r.empId)],['Type',r=>pill(r.type)],['Start',r=>esc(r.start)],['End',r=>esc(r.end)||'Open-ended'],['Status',r=>inl('contracts',r.id,'status',['Active','Ended'],r.status)]],add:'Add contract',msg:'Contract added'})}},
+
+orientation:{d:'Each new hire gets an orientation checklist. Hiring from the ATS creates one automatically.',r(){
+  const IT=['Company policies and PDPA briefing','IT account and email set up','Meet the team and buddy','Workplace safety briefing','Benefits and payroll explained'];
+  const ids=Object.keys(S.orient).filter(id=>emp(id));
+  if(!ids.length)return '<p class="empty">No new hires yet. Hire someone in the ATS to start an orientation checklist.</p>';
+  return table(['Employee',...IT,'Progress'],ids.map(id=>{const o=S.orient[id];const n=IT.filter((_,i)=>o[i]).length;return [empName(id),...IT.map((t,i)=>`<input type="checkbox" aria-label="${esc(t)}" ${o[i]?'checked':''} onchange="S.orient['${id}'][${i}]=this.checked;save();render()">`),`<div class="bar"><i style="width:${n/IT.length*100}%"></i></div>`]}))}},
+
+ess:{d:'In self-service, employees keep their own details up to date instead of HR typing them in. Sign out and sign in as an employee to try it in the employee portal.',r(){
+  const F=[['phone','Mobile phone'],['address','Home address'],['bank','Bank account for salary'],['emergency','Emergency contact']];
+  if(isHR()){return `<p class="note">You're viewing as HR admin. This shows how complete each employee's self-service profile is.</p>`+table(['Employee',...F.map(f=>f[1]),'Complete'],active().map(e=>{const n=F.filter(f=>e[f[0]]).length;return [esc(e.name),...F.map(f=>e[f[0]]?'✓':pill('Missing')),`${n} / 4`]}))}
+  const e=emp(S.me);if(!e)return '<p class="empty">Choose an employee in the header.</p>';
+  return `<div class="panel" style="max-width:640px"><h3>My profile: ${esc(e.name)}</h3><form class="add" style="border:0;padding:0;margin:0" onsubmit="return saveESS(event)">${F.map(f=>fieldHtml({k:f[0],l:f[1],v:e[f[0]],req:1,wide:f[0]==='address'})).join('')}<div><button class="btn">Save my details</button></div></form></div>`}},
+
+lms:{d:'An overview of training activity across the company, built from registrations and learning records.',r(){
+  const rows=S.courses.map(c=>{const en=S.enrollments.filter(n=>n.courseId===c.id);const done=en.filter(n=>n.status==='Completed');const avg=done.length?done.reduce((s,n)=>s+(+n.score||0),0)/done.length:0;const pct=en.length?done.length/en.length*100:0;return [esc(c.title),esc(c.mode),en.length,done.length,`<div class="bar"><i style="width:${pct}%"></i></div>`,done.length?Math.round(avg):'None']});
+  const hrs=S.enrollments.filter(n=>n.status==='Completed').reduce((s,n)=>s+(+S.courses.find(c=>c.id===n.courseId)?.hours||0),0);
+  return `<div class="stats"><div class="stat"><b>${S.courses.length}</b><span>Courses</span></div><div class="stat"><b>${S.enrollments.length}</b><span>Registrations</span></div><div class="stat"><b>${num(hrs)}</b><span>Training hours completed</span></div></div>`+table(['Course','Mode','Registered','Completed','Completion','Avg score'],rows,'',[2,3,5])}},
+
+catalog:{d:'Each course builds one competency. That link is what lets module 4 close the gaps found in Competency management.',r(){
+  return crud('catalog',{coll:'courses',fields:[{k:'title',l:'Course title',req:1},{k:'hours',l:'Hours',t:'number',req:1},{k:'comp',l:'Builds competency',o:()=>S.comps,req:1},{k:'mode',l:'Mode',o:['Online','Classroom','On the job'],req:1}],
+  cols:[['Course',r=>esc(r.title)],['Hours',r=>r.hours],['Competency',r=>esc(r.comp)],['Mode',r=>esc(r.mode)]],num:[1],add:'Add course',msg:'Course added'})}},
+
+register:{d:'Employees sign up for courses themselves; HR can also register people directly.',r(){
+  if(!isHR()){const me=S.me;return table(['Course','Hours','Competency','Mode',''],S.courses.map(c=>{const n=S.enrollments.find(x=>x.empId===me&&x.courseId===c.id);return [esc(c.title),c.hours,esc(c.comp),esc(c.mode),n?pill(n.status):`<button class="btn t s" onclick="enroll('${me}','${c.id}')">Register</button>`]}),'',[1])}
+  return `<form class="add" onsubmit="return regHR(event)">${fieldHtml({k:'empId',l:'Employee',o:empOpts,req:1})}${fieldHtml({k:'courseId',l:'Course',o:courseOpts,req:1})}<div><button class="btn">Register</button></div></form>`+table(['Employee','Course','Status'],S.enrollments.map(n=>[empName(n.empId),esc(S.courses.find(c=>c.id===n.courseId)?.title),pill(n.status)]))}},
+
+records:{d:'When someone finishes a course, record their score. Completed courses count toward training hours.',r(){
+  const mine=isHR()?S.enrollments:S.enrollments.filter(n=>n.empId===S.me);
+  return table(['Employee','Course','Hours','Status','Score',''],mine.map(n=>{const c=S.courses.find(x=>x.id===n.courseId);return [empName(n.empId),esc(c?.title),c?.hours,pill(n.status),n.score===''?'None':n.score,n.status==='Registered'&&isHR()?`<span style="display:flex;gap:6px"><input type="number" min="0" max="100" id="sc_${n.id}" placeholder="Score" style="width:80px" aria-label="Score"><button class="btn s" onclick="complete('${n.id}')">Mark complete</button></span>`:'']}),'No learning records yet.',[2,4])}},
+
+competency:{d:'Rate each person from 0 (none) to 4 (expert). Highlighted cells are gaps below 2 that training should close.',r(){
+  const lv=['0','1','2','3','4'];
+  return `<div class="tw"><table><thead><tr><th>Employee</th>${S.comps.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${active().map(e=>`<tr><td>${esc(e.name)}<div class="m" style="font-size:12px;color:var(--muted)">${posT(e.positionId)}</div></td>${S.comps.map((c,i)=>{const v=S.levels[e.id+'|'+i]??0;return `<td class="${v<2?'low':''}"><select aria-label="${esc(c)}" onchange="S.levels['${e.id}|${i}']=+this.value;save();render()">${optHtml(lv,v)}</select></td>`}).join('')}</tr>`).join('')}</tbody></table></div>`}},
+
+kpi:{d:'Set weighted KPIs for each employee. Weights for one person should add up to 100.',r(){
+  return crud('kpi',{coll:'kpis',fields:[{k:'empId',l:'Employee',o:empOpts,req:1},{k:'name',l:'KPI',req:1,ph:'Customer satisfaction score'},{k:'weight',l:'Weight (%)',t:'number',req:1},{k:'target',l:'Target',t:'number',req:1},{k:'actual',l:'Actual so far',t:'number'}],
+  valid:o=>{const w=S.kpis.filter(k=>k.empId===o.empId).reduce((s,k)=>s+(+k.weight),0)+o.weight;return w>100?`Weights for this employee would total ${w}%. Keep it at 100% or less.`:''},
+  cols:[['Employee',r=>empName(r.empId)],['KPI',r=>esc(r.name)],['Weight',r=>r.weight+'%'],['Target',r=>num(r.target)],['Actual',r=>num(r.actual)],['Achieved',r=>Math.round((+r.actual||0)/(+r.target||1)*100)+'%']],num:[2,3,4,5],add:'Add KPI',msg:'KPI added',after:()=>mark('kpi')})}},
+
+appraisal:{d:'Final score = 70% KPI result + 30% average 360 rating, on a 5-point scale. Achievement per KPI is capped at 120%.',r(){
+  const ids=[...new Set([...S.kpis.map(k=>k.empId),...S.feedback.map(f=>f.empId)])].filter(id=>emp(id));
+  const rows=ids.map(id=>{const ks=S.kpis.filter(k=>k.empId===id);const w=ks.reduce((s,k)=>s+(+k.weight),0);const kp=w?ks.reduce((s,k)=>s+(+k.weight)*Math.min((+k.actual||0)/(+k.target||1),1.2),0)/w:0;const fb=S.feedback.filter(f=>f.empId===id);const f=fb.length?fb.reduce((s,x)=>s+(+x.rating),0)/fb.length:0;
+    const final=(ks.length&&fb.length)?kp*5*.7+f*.3:(ks.length?kp*5:f);const g=final>=4.5?'A':final>=3.5?'B':final>=2.5?'C':'D';
+    return [empName(id),ks.length?Math.round(kp*100)+'%':'None',fb.length?f.toFixed(1):'None',final.toFixed(2),`<b>${g}</b>`]});
+  return table(['Employee','KPI result','360 average','Final (out of 5)','Grade'],rows,'No KPIs or feedback yet. Start in KPI management.',[1,2,3])+`<p class="note">Grades: A from 4.5, B from 3.5, C from 2.5, otherwise D. Discuss with your class whether these weights are fair for every role.</p>`}},
+
+f360:{d:'Collect ratings from the employee, their manager, peers and team members. The average feeds into the appraisal.',r(){
+  return crud('f360',{coll:'feedback',fields:[{k:'empId',l:'About employee',o:empOpts,req:1},{k:'source',l:'Rater',o:['Self','Manager','Peer','Subordinate'],req:1},{k:'rating',l:'Rating',o:[['5','5'],['4','4'],['3','3'],['2','2'],['1','1']],req:1},{k:'comment',l:'Comment',wide:1}],
+  cols:[['Employee',r=>empName(r.empId)],['Rater',r=>esc(r.source)],['Rating',r=>r.rating+' / 5'],['Comment',r=>esc(r.comment)]],add:'Add feedback',msg:'Feedback added'})}},
+
+career:{d:'Record where each person wants to go next and what development will get them there.',r(){
+  return crud('career',{coll:'careers',fields:[{k:'empId',l:'Employee',o:empOpts,req:1},{k:'target',l:'Target position',o:posOpts,req:1},{k:'timeline',l:'Timeline',o:['Within 1 year','1 to 2 years','2 to 3 years','3+ years'],req:1},{k:'action',l:'Development action',wide:1,req:1}],
+  cols:[['Employee',r=>empName(r.empId)],['Current',r=>posT(emp(r.empId)?.positionId)],['Target',r=>posT(r.target)],['Timeline',r=>esc(r.timeline)],['Development action',r=>esc(r.action)]],add:'Add career plan',msg:'Career plan added'})+goalsHR()}},
+
+succession:{d:'Name successors for key roles. Management positions without a successor are flagged as a risk.',r(){
+  const risk=S.positions.filter(p=>p.grade.startsWith('M')&&!S.succession.some(s=>s.positionId===p.id));
+  return `<div class="hint" style="margin-top:0">${risk.length?`Positions with no successor: ${risk.map(p=>esc(p.title)).join(', ')}`:'Every management position has at least one successor.'}</div>`+
+  crud('succession',{coll:'succession',fields:[{k:'positionId',l:'Key position',o:posOpts,req:1},{k:'empId',l:'Candidate',o:empOpts,req:1},{k:'readiness',l:'Readiness',o:['Ready now','1 to 2 years','3+ years'],req:1}],
+  cols:[['Position',r=>posT(r.positionId)],['Incumbent',r=>active().filter(e=>e.positionId===r.positionId).map(e=>esc(e.name)).join(', ')||'Vacant'],['Candidate',r=>empName(r.empId)],['Readiness',r=>pill(r.readiness)]],add:'Add successor',msg:'Successor added'})}},
+
+payroll:{d:'Pay is calculated from salary, OT and bonuses, minus social security and withholding tax. Run payroll to lock in the month.',r(){
+  let T={salary:0,ot:0,bonus:0,gross:0,sso:0,tax:0,net:0};
+  const rows=active().map(e=>{const p=payLine(e,ui.pm);for(const k in T)T[k]+=p[k];return [esc(e.code),esc(e.name),money(p.salary),money(p.ot),money(p.bonus),money(p.gross),money(p.sso),money(p.tax),`<b>${money(p.net)}</b>`]});
+  const t=['','<b>Total</b>',money(T.salary),money(T.ot),money(T.bonus),money(T.gross),money(T.sso),money(T.tax),money(T.net)];t.cls='tot';rows.push(t);
+  const ran=S.payrolls.find(p=>p.month===ui.pm);
+  return `<div class="add" style="display:flex;flex-wrap:wrap;gap:12px;align-items:end"><label class="f">Pay month<input type="month" value="${ui.pm}" onchange="ui.pm=this.value||ui.pm;render()"></label><button class="btn t" onclick="runPayroll()">${ran?'Run payroll again':'Run payroll'}</button>${ran?`<span class="note">Last run ${esc(ran.date)}</span>`:''}</div>`+
+  table(['Code','Employee','Salary','OT','Bonus','Gross','Social security','Tax','Net pay'],rows,'',[2,3,4,5,6,7,8])+
+  `<h2>Payroll history</h2>`+table(['Month','Run on','Employees','Total net pay'],S.payrolls.map(p=>[esc(p.month),esc(p.date),p.count,money(p.total)]),'No payroll has been run yet.',[2,3])}},
+
+ot:{d:'OT pay = hours x hourly rate x multiplier. Hourly rate = monthly salary / 30 / 8. Multipliers follow Thai labour law: 1.5 on workdays, 3 on holidays.',r(){
+  return crud('ot',{coll:'ot',fields:[{k:'empId',l:'Employee',o:empOpts,req:1},{k:'date',l:'Date',t:'date',req:1,v:today()},{k:'hours',l:'Hours',t:'number',req:1},{k:'mult',l:'Rate',o:[['1.5','1.5x workday OT'],['2','2x holiday work'],['3','3x holiday OT']],req:1}],
+  cols:[['Employee',r=>empName(r.empId)],['Date',r=>esc(r.date)],['Hours',r=>r.hours],['Rate',r=>r.mult+'x'],['OT pay',r=>money(otPay(r))]],num:[2,3,4],add:'Record OT',msg:'OT recorded'})}},
+
+bonus:{d:'Bonuses are paid in the month you choose and appear in that month\'s payroll.',r(){
+  return crud('bonus',{coll:'bonuses',fields:[{k:'empId',l:'Employee',o:empOpts,req:1},{k:'month',l:'Pay month',t:'month',req:1,v:'2026-09'},{k:'amount',l:'Amount (THB)',t:'number',req:1},{k:'reason',l:'Reason',req:1}],
+  cols:[['Employee',r=>empName(r.empId)],['Month',r=>esc(r.month)],['Amount',r=>money(r.amount)],['Reason',r=>esc(r.reason)]],num:[2],add:'Add bonus',msg:'Bonus added'})}},
+
+tax:{d:'A simplified personal income tax estimate for teaching: 50% expense deduction up to ฿100,000, ฿60,000 personal allowance, social security deduction, then progressive rates. Real withholding uses more allowances.',r(){
+  const rows=active().map(e=>{const t=taxCalc(e.salary,ssoOf(e.salary));return [esc(e.name),money(t.inc),money(t.exp),money(t.allow),money(t.ss),money(t.taxable),money(t.annual),money(t.monthly)]});
+  return table(['Employee','Annual income','Expenses','Personal allowance','Social security','Taxable income','Annual tax','Withheld per month'],rows,'',[1,2,3,4,5,6,7])+
+  `<h2>Tax brackets used</h2>`+table(['Taxable income','Rate'],[['0 to 150,000','0%'],['150,001 to 300,000','5%'],['300,001 to 500,000','10%'],['500,001 to 750,000','15%'],['750,001 to 1,000,000','20%'],['1,000,001 to 2,000,000','25%'],['2,000,001 to 5,000,000','30%'],['Over 5,000,000','35%']],'',[1])}},
+
+sso:{d:'Employee and employer each contribute the same amount. Rates are settings, not code, because the government changes them.',r(){
+  const s=S.settings;let te=0;
+  const rows=active().map(e=>{const c=ssoOf(e.salary);te+=c;return [esc(e.name),money(e.salary),money(Math.min(Math.max(e.salary,s.ssoFloor),s.ssoCap)),money(c),money(c),money(c*2)]});
+  const t=['<b>Total</b>','','',money(te),money(te),money(te*2)];t.cls='tot';rows.push(t);
+  return `<form class="add" onsubmit="return saveSSO(event)">${fieldHtml({k:'ssoRate',l:'Contribution rate (%)',t:'number',v:s.ssoRate,req:1})}${fieldHtml({k:'ssoFloor',l:'Minimum wage base (THB)',t:'number',v:s.ssoFloor,req:1})}${fieldHtml({k:'ssoCap',l:'Maximum wage base (THB)',t:'number',v:s.ssoCap,req:1})}<div><button class="btn">Save rates</button></div></form>
+  <p class="note">Defaults follow the 2026 rules for Section 33 insured employees: 5% on a wage base capped at ฿17,500, so at most ฿875 a month. The cap is scheduled to rise to ฿20,000 and later ฿23,000; try changing it and watch payroll update.</p>`+
+  table(['Employee','Salary','Wage base','Employee pays','Employer pays','Total to fund'],rows,'',[1,2,3,4,5])}},
+
+leave:{d:'Employees request leave in the portal and their manager decides; HR can decide any request. Quotas here follow Thai minimums: 30 sick days, 6 annual days, 3 personal business days per year.',r(){
+  const bal=id=>Object.keys(QUOTA).map(t=>{const used=S.leaves.filter(l=>l.empId===id&&l.type===t&&l.status==='Approved').reduce((s,l)=>s+days(l.from,l.to),0);return `${t} ${QUOTA[t]-used}/${QUOTA[t]}`}).join(', ');
+  if(!isHR()){const me=S.me;CFG.leave={coll:'leaves',fields:[{k:'type',l:'Leave type',o:Object.keys(QUOTA),req:1},{k:'from',l:'From',t:'date',req:1},{k:'to',l:'To',t:'date',req:1},{k:'reason',l:'Reason',req:1}],def:{empId:me,status:'Pending'},valid:o=>o.to<o.from?'The end date is before the start date.':'',msg:'Leave requested'};
+    return `<div class="hint" style="margin-top:0">Days remaining: ${bal(me)}</div><form class="add" onsubmit="return addRow(event,'leave')">${CFG.leave.fields.map(fieldHtml).join('')}<div><button class="btn">Request leave</button></div></form>`+
+    table(['Type','From','To','Days','Reason','Status'],S.leaves.filter(l=>l.empId===me).map(l=>[esc(l.type),esc(l.from),esc(l.to),days(l.from,l.to),esc(l.reason),pill(l.status)]),'You have no leave requests yet.',[3])}
+  return table(['Employee','Type','From','To','Days','Reason','Balance','Status'],S.leaves.map(l=>[empName(l.empId),esc(l.type),esc(l.from),esc(l.to),days(l.from,l.to),esc(l.reason),`<span class="note">${bal(l.empId)}</span>`,l.status==='Pending'?`<span style="display:flex;gap:6px"><button class="btn t s" onclick="setF('leaves','${l.id}','status','Approved')">Approve</button><button class="btn g s" onclick="setF('leaves','${l.id}','status','Rejected')">Reject</button></span>`:pill(l.status)+(l.decidedBy?`<br><span class="m" style="font-size:12px">by ${whoName(l.decidedBy)}</span>`:'')]),'No leave requests yet. Employees submit them from the employee portal.',[4])}},
+
+grievance:{d:'Anyone can raise a concern, named or anonymous. HR tracks each case until it is resolved.',r(){
+  const c={coll:'grievances',fields:[{k:'subject',l:'What happened?',req:1,wide:1},{k:'cat',l:'Category',o:['Workplace','Manager or colleague','Pay and benefits','Harassment','Other'],req:1},{k:'anon',l:'Submit as',o:[['named','My name'],['anon','Anonymous']],req:1}],
+    def:()=>({status:'Open',date:today()}),after:o=>{o.empId=o.anon==='anon'?'':(isHR()?'':S.me)},msg:'Grievance submitted',
+    cols:[['Date',r=>esc(r.date)],['From',r=>empName(r.empId)],['Category',r=>esc(r.cat)],['Subject',r=>esc(r.subject)],['Status',r=>isHR()?inl('grievances',r.id,'status',['Open','Investigating','Resolved'],r.status):pill(r.status)]],add:'Submit',noDel:!isHR()};
+  return crud('grievance',c)}},
+
+engagement:{d:'A three-question pulse survey. Low average scores point to where HR should act.',r(){
+  const Q=[['q1','I would recommend this company as a place to work'],['q2','I have what I need to do my job well'],['q3','I can see a future for myself here']];
+  const avg=k=>S.surveys.length?S.surveys.reduce((s,v)=>s+(+v[k]),0)/S.surveys.length:0;
+  CFG.engagement={coll:'surveys',fields:[...(isHR()?[{k:'empId',l:'Respondent',o:empOpts,req:1}]:[]),...Q.map(q=>({k:q[0],l:q[1],o:[['5','5 Strongly agree'],['4','4 Agree'],['3','3 Neutral'],['2','2 Disagree'],['1','1 Strongly disagree']],req:1}))],def:()=>isHR()?{}:{empId:S.me},msg:'Response recorded'};
+  return `<form class="add" onsubmit="return addRow(event,'engagement')">${CFG.engagement.fields.map(fieldHtml).join('')}<div><button class="btn">Submit response</button></div></form><h2>Results (${S.surveys.length} responses)</h2>`+
+  table(['Question','Average','',''],Q.map(q=>{const a=avg(q[0]);return [esc(q[1]),a.toFixed(1)+' / 5',`<div class="bar" style="width:160px"><i style="width:${a/5*100}%"></i></div>`,a<3.5?pill('Needs attention'):'']}),'',[1])}},
+
+exit:{d:'Recording an exit interview also ends the person\'s employment and moves them to the alumni database.',r(){
+  return `<form class="add" onsubmit="return doExit(event)">${fieldHtml({k:'empId',l:'Leaving employee',o:empOpts,req:1})}${fieldHtml({k:'date',l:'Last working day',t:'date',req:1,v:today()})}${fieldHtml({k:'reason',l:'Main reason',o:['Career growth','Pay and benefits','Relocation','Work-life balance','Relationship with manager','Retirement','Other'],req:1})}${fieldHtml({k:'rehire',l:'Eligible for rehire',o:['Yes','No'],req:1})}${fieldHtml({k:'notes',l:'Interview notes',t:'area',wide:1})}<div><button class="btn">Record exit</button></div></form>`+
+  table(['Employee','Last day','Reason','Rehire','Notes'],S.exits.map(x=>[empName(x.empId),esc(x.date),esc(x.reason),esc(x.rehire),esc(x.notes)]),'No exits recorded yet.')}},
+
+alumni:{d:'Former employees stay in touch through the alumni network. Those eligible for rehire are a recruiting source for module 2.',r(){
+  const ex=S.employees.filter(e=>e.status==='Exited');
+  return table(['Name','Last position','Joined','Left','Reason','Rehire','Email'],ex.map(e=>{const x=S.exits.find(y=>y.empId===e.id)||{};return [esc(e.name),posT(e.positionId),esc(e.hireDate),esc(x.date),esc(x.reason),x.rehire==='Yes'?pill('Approved'):pill('Rejected'),esc(e.email)]}),'No alumni yet. Record an exit interview to add someone.')}}
+};
+
+/* actions */
+function saveJD(e){e.preventDefault();const fd=new FormData(e.target);pos(ui.jd).jd={purpose:fd.get('purpose'),duties:fd.get('duties'),quals:fd.get('quals')};save();toast('Job description saved');render();return false}
+function moveStage(id,v){const a=S.applicants.find(x=>x.id===id);a.stage=v;save();toast(`${a.name} moved to ${v}`);render()}
+function hire(id){
+  const a=S.applicants.find(x=>x.id===id);const r=S.reqs.find(x=>x.id===a.reqId);const p=pos(r.positionId);
+  const n=S.employees.length+1;const eid='e'+uid();const code='EMP'+String(n).padStart(3,'0');
+  S.employees.push({id:eid,code,name:a.name,positionId:p.id,salary:p.salary,hireDate:today(),status:'Active',managerId:hireManager(p.id,S),email:a.email,phone:'',address:'',bank:'',emergency:''});
+  S.contracts.push({id:uid(),empId:eid,type:'Probation',start:today(),end:addDays(today(),118),status:'Active'});
+  S.orient[eid]={};a.stage='Hired';a.empId=eid;
+  if(S.applicants.filter(x=>x.reqId===r.id&&x.stage==='Hired').length>=r.openings)r.status='Closed';
+  mark('hired');save();toast(`${a.name} is now employee ${code}. See Employee profile.`);render()}
+function saveInterview(e){e.preventDefault();const fd=new FormData(e.target);const a=S.applicants.find(x=>x.id===fd.get('aid'));a.interview={date:fd.get('date'),rating:+fd.get('rating'),notes:fd.get('notes')};a.score=+fd.get('rating');if(a.stage==='Screening')a.stage='Interview';mark('interview');save();toast('Evaluation saved');render();return false}
+function saveESS(e){e.preventDefault();const fd=new FormData(e.target);const m=emp(S.me);['phone','address','bank','emergency'].forEach(k=>m[k]=fd.get(k));mark('ess');save();toast('Your details are saved');render();return false}
+function enroll(eid,cid){if(S.enrollments.some(n=>n.empId===eid&&n.courseId===cid)){toast('Already registered for this course');return}S.enrollments.push({id:uid(),empId:eid,courseId:cid,status:'Registered',score:''});mark('enrolled');save();toast('Registered');render()}
+function regHR(e){e.preventDefault();const fd=new FormData(e.target);enroll(fd.get('empId'),fd.get('courseId'));return false}
+function complete(id){const v=document.getElementById('sc_'+id).value;if(v===''||+v<0||+v>100){toast('Enter a score from 0 to 100 first.');return}const n=S.enrollments.find(x=>x.id===id);n.status='Completed';n.score=+v;save();toast('Course marked complete');render()}
+function runPayroll(){const lines=active().map(e=>({empId:e.id,...payLine(e,ui.pm)}));const total=lines.reduce((s,l)=>s+l.net,0);S.payrolls=S.payrolls.filter(p=>p.month!==ui.pm);S.payrolls.unshift({id:uid(),month:ui.pm,date:today(),count:lines.length,total,lines});mark('payroll');save();toast(`Payroll for ${ui.pm} run: ${money(total)} net`);render()}
+function saveSSO(e){e.preventDefault();const fd=new FormData(e.target);['ssoRate','ssoFloor','ssoCap'].forEach(k=>S.settings[k]=+fd.get(k)||0);save();toast('Social security rates saved');render();return false}
+function doExit(e){e.preventDefault();const fd=new FormData(e.target);const id=fd.get('empId');const m=emp(id);m.status='Exited';S.employees.filter(x=>x.managerId===id).forEach(x=>x.managerId=m.managerId||'');audit('Disabled account for '+m.name);S.contracts.filter(k=>k.empId===id).forEach(k=>{k.status='Ended';k.end=k.end||fd.get('date')});
+  S.exits.push({id:uid(),empId:id,date:fd.get('date'),reason:fd.get('reason'),rehire:fd.get('rehire'),notes:fd.get('notes')});if(S.me===id)S.me=active()[0]?.id;mark('exit');save();toast(`${m.name} moved to the alumni database`);render();return false}
+function setRole(v){S.role=v;save();render()}
+function setMe(v){S.me=v;save();render()}
+function armed(el,fn){if(el.dataset.arm){el.dataset.arm='';fn();return}const t=el.textContent;el.dataset.arm='1';el.textContent='Press again to confirm';setTimeout(()=>{if(el.isConnected&&el.dataset.arm){el.dataset.arm='';el.textContent=t}},3000)}
+function resetData(){const keep={role:S.role,student:S.student};S=seed();S.role=keep.role;S.student=keep.student;S.started=Date.now();ui.view='';SESSION=null;save();toast('Practice data restored');if(location.hash.slice(1)==='login')render();else location.hash='login'}
+
+/* ---------- shared helpers ---------- */
+const nm=id=>esc(NAMES[id]||(id===UID?'You':'Student'));
+function ago(t){if(!t)return 'never';const m=Math.round((Date.now()-t)/60000);if(m<1)return 'just now';if(m<60)return m+' min ago';const h=Math.round(m/60);if(h<24)return h+' h ago';return Math.round(h/24)+' d ago'}
+const teamList=()=>Object.entries(TEAMS).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),undefined,{numeric:true}));
+const membersOf=tid=>Object.keys(MEMBERS).filter(u=>MEMBERS[u].teamId===tid);
+const progressOf=t=>EX.filter(x=>t.done&&t.done[x[0]]).length;
+function setSync(t){SYNC=t;const el=document.getElementById('syncst');if(el)el.textContent=t}
+
+/* ---------- progress report: export, restore, verify ---------- */
+const SALT='hrmis-lab|siam-craft|v1';
+function fnv(str,seed){let h=seed>>>0;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)>>>0}return h.toString(16).padStart(8,'0')}
+function checkCode(p){const str=JSON.stringify([p.student,p.generatedAt,p.done,p.summary])+SALT;const h=(fnv(str,2166136261)+fnv(str,3339675911)).toUpperCase();return h.slice(0,4)+'-'+h.slice(4,8)+'-'+h.slice(8,12)}
+function summaryOf(st){const b=seed();const d=(a,c)=>Math.max(0,a-c);const A=st.applicants||[],L=st.leaves||[];
+  return [['Positions created',d((st.positions||[]).length,b.positions.length)],['Job requisitions submitted',d((st.reqs||[]).length,b.reqs.length)],['Applicants added',d(A.length,b.applicants.length)],
+  ['Interviews recorded',d(A.filter(a=>a.interview).length,1)],['Applicants hired',A.filter(a=>a.stage==='Hired').length],['Course registrations',d((st.enrollments||[]).length,b.enrollments.length)],
+  ['KPIs set',d((st.kpis||[]).length,b.kpis.length)],['Payroll runs',(st.payrolls||[]).length],['Leave requests decided',d(L.filter(l=>l.status!=='Pending').length,1)],['Exit interviews recorded',(st.exits||[]).length]]}
+const fmtT=t=>t?new Date(t).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+function saveStudent(e){e.preventDefault();const fd=new FormData(e.target);S.student={name:fd.get('name').trim(),sid:fd.get('sid').trim(),section:fd.get('section').trim()};save();toast('Your details are saved');render();return false}
+function buildReport(){
+  const p={kind:'hrmis-lab-report',version:1,student:S.student,generatedAt:Date.now(),started:S.started||null,done:S.done,summary:summaryOf(S)};
+  p.check=checkCode(p);p.state=shareable(S);
+  const n=EX.filter(x=>S.done[x[0]]).length;const st=S.student;
+  const json=JSON.stringify(p).replace(/</g,'\\u003c');
+  const html=`<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>HRMIS Lab progress: ${esc(st.name)} ${esc(st.sid)}</title>
+<style>body{font-family:'IBM Plex Sans Thai',Tahoma,'Segoe UI',sans-serif;color:#1B2233;max-width:760px;margin:32px auto;padding:0 20px;line-height:1.55}h1{font-size:22px;margin:0}h2{font-size:16px;margin:24px 0 8px}.m{color:#5A6377}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:6px 10px;border-bottom:1px solid #DCE1EA}th{color:#5A6377;font-weight:500}td.n{text-align:right}.code{font-family:ui-monospace,Menlo,monospace;font-size:18px;letter-spacing:1px;background:#EDF1F8;padding:6px 12px;display:inline-block;border-radius:6px}.ok{color:#1B7F52}@media print{body{margin:0}}</style></head><body>
+<h1>HRMIS Lab progress report</h1><p class="m">Practice company: Siam Craft Co. ห้องปฏิบัติการระบบสารสนเทศทรัพยากรมนุษย์</p>
+<table><tr><th>Student</th><td>${esc(st.name)}</td></tr><tr><th>Student ID</th><td>${esc(st.sid)}</td></tr><tr><th>Section</th><td>${esc(st.section)}</td></tr><tr><th>Report created</th><td>${fmtT(p.generatedAt)}</td></tr><tr><th>Exercises completed</th><td><b>${n} of ${EX.length}</b></td></tr></table>
+<h2>Exercises</h2><table><tr><th>#</th><th>Exercise</th><th>Completed</th></tr>${EX.map((x,i)=>{const d=S.done[x[0]];return `<tr><td>${i+1}</td><td>${esc(x[1])}</td><td>${d?(d.at?'<span class="ok">✓</span> '+fmtT(d.at):'<span class="ok">✓</span>'):'<span class="m">Not yet</span>'}</td></tr>`}).join('')}</table>
+<h2>What this student built in the practice company</h2><table>${p.summary.map(r=>`<tr><td>${esc(r[0])}</td><td class="n">${r[1]}</td></tr>`).join('')}</table>
+<h2>Check code</h2><p><span class="code">${p.check}</span></p><p class="m" style="font-size:13px">Instructors: open HRMIS Lab, choose "For instructors: check reports", and add this file to confirm the code matches. Students: keep this file. You can also use it to restore your work in HRMIS Lab on another browser.</p>
+<script type="application/json" id="hrmis-data">${json}<\/script></body></html>`;
+  const safe=(st.sid||st.name||'student').replace(/[^\w\u0E00-\u0E7F-]+/g,'_').slice(0,40);
+  return {html,filename:`hrmis-progress-${safe}-${new Date().toISOString().slice(0,10)}.html`};
+}
+async function downloadReport(){
+  if(!S.student||!S.student.name||!S.student.sid){toast('Fill in your name and student ID first.');return}
+  const r=buildReport();let dl=null;
+  try{dl=window.claude&&typeof window.claude.use==='function'?await window.claude.use('downloads'):null}catch(e){}
+  if(dl){try{await dl.save({filename:r.filename,data:r.html});S.lastExport=Date.now();save();render();return}catch(e){if(e&&e.code==='declined')return;if(e&&e.code==='rate_limited'){toast('A save prompt is already open.');return}}}
+  try{const url=URL.createObjectURL(new Blob([r.html],{type:'text/html'}));const a=document.createElement('a');a.href=url;a.download=r.filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);S.lastExport=Date.now();save();render()}
+  catch(e){toast('Downloads are not available here. Try opening the page in a regular browser tab.')}
+}
+function parseReport(text){
+  let j=null;const t=text.trim();
+  if(t.startsWith('{')){try{j=JSON.parse(t)}catch(e){}}
+  else{const m=t.match(/<script type="application\/json" id="hrmis-data">([\s\S]*?)<\/script>/);if(m){try{j=JSON.parse(m[1])}catch(e){}}}
+  return j&&j.kind==='hrmis-lab-report'?j:null;
+}
+const readFile=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsText(f)});
+let pendingRestore=null;
+async function pickRestore(input){const f=input.files[0];if(!f)return;const j=parseReport(await readFile(f));
+  if(!j||!j.state){pendingRestore=null;toast('That file is not an HRMIS Lab progress report.');render();return}
+  pendingRestore=j;render()}
+function doRestore(){const j=pendingRestore;if(!j)return;const keep={role:S.role};S={...seed(),...JSON.parse(JSON.stringify(j.state)),v:1,role:keep.role,done:j.done||{},student:j.student||S.student,started:j.started||Date.now()};
+  S=migrate(S);if(!emp(S.me))S.me=active()[0]?.id;pendingRestore=null;SESSION=null;save();toast('Your work has been restored from the report');location.hash='home';render()}
+let VER=[];
+async function pickVerify(input){const out=[];for(const f of input.files){const j=parseReport(await readFile(f));
+  if(!j){out.push({file:f.name,bad:'Not an HRMIS Lab report'});continue}
+  const codeOk=checkCode(j)===j.check;const sumOk=!j.state||JSON.stringify(summaryOf(j.state))===JSON.stringify(j.summary);
+  out.push({file:f.name,j,ok:codeOk&&sumOk})}
+  VER=VER.concat(out);input.value='';render()}
+
+SC.progress={r(){
+  const st=S.student||{name:'',sid:'',section:''};const n=EX.filter(x=>S.done[x[0]]).length;
+  const ready=st.name&&st.sid;
+  return `<h1>My progress and export</h1><p class="sub">ความคืบหน้าของฉันและการส่งออกรายงาน</p>
+  <div class="hint">Your work is saved in this browser only. It disappears if you clear browser data, use a private window, or switch to another computer. Download your report after each session: it's your proof of work and your backup.</div>
+  <div class="grid2" style="align-items:start">
+   <div class="panel"><h3>1. Your details</h3><form class="add" style="border:0;padding:0;margin:0" onsubmit="return saveStudent(event)">
+    <label class="f wide">Full name<input name="name" required value="${esc(st.name)}" placeholder="ชื่อ นามสกุล"></label>
+    <label class="f">Student ID<input name="sid" required value="${esc(st.sid)}"></label><label class="f">Section<input name="section" value="${esc(st.section)}"></label>
+    <div><button class="btn">Save details</button></div></form></div>
+   <div class="panel"><h3>2. Download your report</h3>
+    <p style="margin:0 0 6px"><b>${n} of ${EX.length}</b> exercises completed</p><div class="bar" style="margin-bottom:12px"><i style="width:${n/EX.length*100}%"></i></div>
+    <button class="btn t" onclick="downloadReport()" ${ready?'':'disabled aria-disabled="true"'}>Download progress report</button>
+    <p class="note" style="margin:8px 0 0">${ready?`Saves an HTML file you can open in any browser, print to PDF, or submit as is.${S.lastExport?` Last downloaded ${ago(S.lastExport)}.`:''}`:'Save your name and student ID first.'}</p></div>
+  </div>
+  <h2>What goes in the report</h2>
+  ${table(['#','Exercise','Completed'],EX.map((x,i)=>{const d=S.done[x[0]];return [i+1,esc(x[1]),d?(d.at?'✓ '+fmtT(d.at):'✓'):'<span class="m">Not yet</span>']}))}
+  <div style="height:12px"></div>${table(['What you built','Count'],summaryOf(S).map(r=>[esc(r[0]),r[1]]),'',[1])}
+  <h2>Restore your work</h2><p class="note">Moving to another computer or lost your data? Choose a report you downloaded earlier to bring your company back exactly as it was.</p>
+  <div class="inline"><label class="f">Report file<input type="file" accept=".html,.htm,.json" onchange="pickRestore(this)"></label></div>
+  ${pendingRestore?`<div class="ctx warn" style="margin-top:12px"><span>Report for <b>${esc(pendingRestore.student?.name||'unknown')}</b>, created ${fmtT(pendingRestore.generatedAt)}, with ${EX.filter(x=>pendingRestore.done&&pendingRestore.done[x[0]]).length} exercises done. Restoring replaces everything currently in this browser.</span><button class="btn s" onclick="armed(this,doRestore)">Replace my data</button><button class="btn g s" onclick="pendingRestore=null;render()">Cancel</button></div>`:''}`}};
+
+SC.verify={r(){
+  const rows=VER.map(v=>v.bad?[esc(v.file),'','','','',pill('Rejected')+' '+esc(v.bad)]:[esc(v.j.student?.name),esc(v.j.student?.sid),esc(v.j.student?.section),`${EX.filter(x=>v.j.done&&v.j.done[x[0]]).length} / ${EX.length}`,fmtT(v.j.generatedAt),v.ok?pill('Verified')+' '+esc(v.j.check):pill('Rejected')+' Changed after download']);
+  return `<h1>Check student reports</h1><p class="sub">สำหรับอาจารย์: ตรวจสอบรายงานความคืบหน้าของนักศึกษา</p>
+  <div class="hint">Add the report files your students submitted. You can select many at once. Each one is checked here in your browser and nothing is uploaded anywhere.</div>
+  <div class="inline" style="margin-bottom:14px"><label class="f">Report files<input type="file" multiple accept=".html,.htm,.json" onchange="pickVerify(this)"></label>${VER.length?'<button class="btn g" onclick="VER=[];render()">Clear list</button>':''}</div>
+  ${table(['Student','Student ID','Section','Exercises','Report created','Check'],rows,'No reports added yet.',[3])}
+  <p class="note">"Changed after download" means the report's text no longer matches its check code. The check is a deterrent against casual editing, not a security guarantee, so it's still worth spot-checking a student's work in class.</p>`}};
+
+
+/* ================= Roles, sessions and access control =================
+   Three roles: HR admin (full access), Manager (own data + direct reports), Employee (own data only).
+   Every portal screen reads data through the scoped helpers below, so a screen can only
+   ever receive the signed-in person's records. Hiding a menu is not the protection: the
+   route check in render() and these helpers are. */
+function HOL(){return [['2026-01-01',"New Year's Day","วันขึ้นปีใหม่"],['2026-01-02','Special holiday','วันหยุดพิเศษ'],['2026-03-03','Makha Bucha Day','วันมาฆบูชา'],['2026-04-06','Chakri Day','วันจักรี'],['2026-04-13','Songkran','วันสงกรานต์'],['2026-04-14','Songkran','วันสงกรานต์'],['2026-04-15','Songkran','วันสงกรานต์'],['2026-05-01','National Labour Day','วันแรงงานแห่งชาติ'],['2026-05-04','Coronation Day','วันฉัตรมงคล'],['2026-05-31','Visakha Bucha Day','วันวิสาขบูชา'],['2026-06-01','Substitute for Visakha Bucha','วันหยุดชดเชยวันวิสาขบูชา'],['2026-06-03',"Queen Suthida's Birthday",'วันเฉลิมพระชนมพรรษาพระบรมราชินี'],['2026-07-28',"King's Birthday",'วันเฉลิมพระชนมพรรษาพระบาทสมเด็จพระเจ้าอยู่หัว'],['2026-07-29','Asarnha Bucha Day','วันอาสาฬหบูชา'],['2026-08-12',"Queen Mother's Birthday and Mother's Day",'วันแม่แห่งชาติ'],['2026-10-13','King Bhumibol Memorial Day','วันนวมินทรมหาราช'],['2026-10-23','Chulalongkorn Day','วันปิยมหาราช'],['2026-12-05',"King Bhumibol's Birthday and Father's Day",'วันพ่อแห่งชาติ'],['2026-12-07',"Substitute for Father's Day",'วันหยุดชดเชยวันพ่อแห่งชาติ'],['2026-12-10','Constitution Day','วันรัฐธรรมนูญ'],['2026-12-31',"New Year's Eve",'วันสิ้นปี']]}
+function calcLine(e,st,m){const hourly=e.salary/30/8;
+  const ot=(st.ot||[]).filter(o=>o.empId===e.id&&(o.date||'').startsWith(m)).reduce((s,o)=>s+o.hours*hourly*(+o.mult),0);
+  const bonus=(st.bonuses||[]).filter(b=>b.empId===e.id&&b.month===m).reduce((s,b)=>s+(+b.amount||0),0);
+  const se=st.settings;const sso=Math.min(Math.max(e.salary,se.ssoFloor),se.ssoCap)*se.ssoRate/100;const tax=taxCalc(e.salary,sso).monthly;const gross=e.salary+ot+bonus;
+  return{salary:e.salary,ot,bonus,gross,sso,tax,net:gross-sso-tax}}
+function seed(){const st=seedBase();st.v=2;
+  const MGR={e1:'',e2:'e1',e3:'e2',e4:'e8',e5:'e1',e6:'e5',e7:'e1',e8:'e1'};st.employees.forEach(e=>e.managerId=MGR[e.id]??'');
+  st.holidays=HOL().map(([date,name,th])=>({id:'h'+date,date,name,th}));
+  st.goals=[{id:'g1',empId:'e3',title:'Complete PDPA practitioner certification',type:'Development',due:'2026-12-31',status:'In progress'},{id:'g2',empId:'e6',title:'Pass my probation review',type:'Performance',due:'2026-11-29',status:'In progress'},{id:'g3',empId:'e4',title:'Learn the new CRM reports',type:'Development',due:'2026-11-30',status:'Not started'}];
+  st.leaves.push({id:'l3',empId:'e6',type:'Personal',from:'2026-10-15',to:'2026-10-15',reason:'Bank appointment',status:'Pending'});
+  st.leaves.forEach(l=>{if(l.status==='Approved'){l.decidedBy=MGR[l.empId]||'hr'}});
+  st.audit=[];st.lastLogin={};
+  st.payrolls=['2026-08','2026-07'].map(m=>{const lines=st.employees.filter(e=>e.status==='Active'&&e.hireDate<=m+'-31').map(e=>({empId:e.id,...calcLine(e,st,m)}));return{id:'pr'+m,month:m,date:m+'-28',count:lines.length,total:lines.reduce((s,l)=>s+l.net,0),lines}});
+  return st}
+function hireManager(pid,st){const p=st.positions.find(x=>x.id===pid);const act=st.employees.filter(e=>e.status==='Active');
+  const peer=act.find(e=>e.positionId===pid&&e.managerId);if(peer)return peer.managerId;
+  const um=act.find(e=>{const q=st.positions.find(x=>x.id===e.positionId);return p&&q&&q.unit===p.unit&&String(q.grade).startsWith('M')});if(um)return um.id;
+  return act.find(e=>e.id==='e1')?'e1':''}
+function migrate(st){if(!st)return seed();const b=seed();
+  (st.employees||[]).forEach(e=>{if(e.managerId===undefined){const be=b.employees.find(x=>x.id===e.id);e.managerId=be?be.managerId:hireManager(e.positionId,st)}});
+  if(!st.holidays)st.holidays=b.holidays;if(!st.goals)st.goals=b.goals;if(!st.audit)st.audit=[];if(!st.lastLogin)st.lastLogin={};
+  st.payrolls=st.payrolls||[];if(!st.payrolls.some(p=>p.lines))b.payrolls.forEach(p=>{if(!st.payrolls.some(x=>x.month===p.month))st.payrolls.push(p)});
+  st.v=2;return st}
+function workDays(a,b){if(!a||!b||b<a)return 0;const H=new Set((S.holidays||[]).map(h=>h.date));let n=0;const pad=x=>String(x).padStart(2,'0');
+  for(let d=new Date(a+'T00:00:00');d<=new Date(b+'T00:00:00');d.setDate(d.getDate()+1)){const w=d.getDay();const iso=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());if(w!==0&&w!==6&&!H.has(iso))n++}return n}
+
+const ME=()=>SESSION&&SESSION.kind==='emp'?emp(SESSION.id):null;
+const reports=id=>active().filter(e=>e.managerId===id);
+const isMgr=id=>reports(id).length>0;
+const roleOf=()=>!SESSION?'':SESSION.kind==='hr'?'HR admin':isMgr(SESSION.id)?'Manager':'Employee';
+const mgrName=id=>id&&emp(id)?esc(emp(id).name):'<span class="m">None (top of organization)</span>';
+const whoName=w=>w==='hr'?'HR administrator':w?esc(emp(w)?.name||'Unknown'):'Signed out';
+function audit(action,ok=true){S.audit=S.audit||[];S.audit.unshift({at:Date.now(),who:SESSION?(SESSION.kind==='hr'?'hr':SESSION.id):'',action,ok});if(S.audit.length>300)S.audit.length=300}
+
+/* scoped data access: the only way portal screens read data */
+const my={
+  emp:()=>ME(),
+  leaves:()=>S.leaves.filter(l=>l.empId===SESSION.id),
+  payslips:()=>S.payrolls.filter(p=>p.lines&&p.lines.some(l=>l.empId===SESSION.id)).map(p=>({month:p.month,date:p.date,line:p.lines.find(l=>l.empId===SESSION.id)})).sort((a,b)=>b.month.localeCompare(a.month)),
+  kpis:()=>S.kpis.filter(k=>k.empId===SESSION.id),
+  goals:()=>S.goals.filter(g=>g.empId===SESSION.id),
+  contracts:()=>S.contracts.filter(k=>k.empId===SESSION.id),
+  training:()=>S.enrollments.filter(n=>n.empId===SESSION.id),
+  team:()=>reports(SESSION.id),
+  teamLeaves:()=>{const ids=reports(SESSION.id).map(e=>e.id);return S.leaves.filter(l=>ids.includes(l.empId))}
+};
+const leaveUsed=(id,type,st='Approved')=>S.leaves.filter(l=>l.empId===id&&l.type===type&&l.status===st&&String(l.from).startsWith('2026')).reduce((s,l)=>s+workDays(l.from,l.to),0);
+const leaveLeft=(id,type)=>QUOTA[type]-leaveUsed(id,type);
+function apprOf(id){const ks=S.kpis.filter(k=>k.empId===id);const w=ks.reduce((s,k)=>s+(+k.weight),0);const kp=w?ks.reduce((s,k)=>s+(+k.weight)*Math.min((+k.actual||0)/(+k.target||1),1.2),0)/w:0;
+  const fb=S.feedback.filter(f=>f.empId===id);const f=fb.length?fb.reduce((s,x)=>s+(+x.rating),0)/fb.length:0;if(!ks.length&&!fb.length)return null;
+  const final=(ks.length&&fb.length)?kp*5*.7+f*.3:(ks.length?kp*5:f);return{kp,f,final,grade:final>=4.5?'A':final>=3.5?'B':final>=2.5?'C':'D',nk:ks.length,nf:fb.length}}
+const mname=m=>{const[y,mm]=m.split('-');return new Date(+y,+mm-1,1).toLocaleString('en-GB',{month:'long',year:'numeric'})};
+
+/* ---------- sign in / out ---------- */
+function signIn(kind,id){
+  if(kind==='emp'){const e=emp(id);if(!e||e.status!=='Active'){toast('This account is disabled.');return}}
+  SESSION=kind==='hr'?{kind:'hr'}:{kind:'emp',id};S.lastLogin=S.lastLogin||{};S.lastLogin[kind==='hr'?'hr':id]=Date.now();audit('Signed in as '+roleOf());ui.lastDeny='';ui.slip='';ui.tm='';save();
+  const target=kind==='hr'?'home':'me';if(location.hash.slice(1)===target)render();else location.hash=target}
+function signOut(){audit('Signed out');SESSION=null;save();if(location.hash.slice(1)==='login')render();else location.hash='login'}
+
+/* ---------- portal actions (each re-checks who is signed in) ---------- */
+function saveMyProfile(e){e.preventDefault();const m=ME();if(!m)return false;const fd=new FormData(e.target);['phone','address','bank','emergency'].forEach(k=>m[k]=fd.get(k).trim());audit('Updated own contact details');mark('ess');save();toast('Your details are saved');render();return false}
+function submitLeave(e){e.preventDefault();const m=ME();if(!m)return false;const fd=new FormData(e.target);const o={id:uid(),empId:m.id,type:fd.get('type'),from:fd.get('from'),to:fd.get('to'),reason:fd.get('reason').trim(),status:'Pending',approver:m.managerId||'hr',at:Date.now()};
+  if(o.to<o.from){toast('The end date is before the start date.');return false}
+  const wd=workDays(o.from,o.to);if(!wd){toast('Those dates are all weekends or company holidays.');return false}
+  if(wd>leaveLeft(m.id,o.type)-leaveUsed(m.id,o.type,'Pending')){toast(`Not enough ${o.type.toLowerCase()} leave left for ${wd} working day${wd>1?'s':''}.`);return false}
+  if(my.leaves().some(l=>['Pending','Approved'].includes(l.status)&&!(o.to<l.from||o.from>l.to))){toast('You already have leave on some of those dates.');return false}
+  S.leaves.push(o);audit(`Requested ${wd} day(s) of ${o.type.toLowerCase()} leave`);save();toast(`Request sent to ${o.approver==='hr'?'HR':emp(o.approver)?.name}`);render();return false}
+function cancelLeave(id){const l=S.leaves.find(x=>x.id===id);if(!l||l.empId!==SESSION.id||l.status!=='Pending'){toast('Access denied');return}l.status='Cancelled';audit('Cancelled own leave request');save();render()}
+function mgrDecide(id,st){const l=S.leaves.find(x=>x.id===id);
+  if(!l||!reports(SESSION.id).some(r=>r.id===l.empId)){audit('Blocked: tried to decide leave outside own team',false);save();toast('Access denied: you can only decide leave for your direct reports.');render();return}
+  l.status=st;l.decidedBy=SESSION.id;l.decidedAt=Date.now();audit(`${st} leave for ${emp(l.empId)?.name}`);if(st==='Approved')mark('mgrApproved');save();toast(`Leave ${st.toLowerCase()}`);render()}
+function addGoal(e){e.preventDefault();const fd=new FormData(e.target);S.goals.push({id:uid(),empId:SESSION.id,title:fd.get('title').trim(),type:fd.get('type'),due:fd.get('due'),status:'Not started'});audit('Added a personal goal');save();toast('Goal added');render();return false}
+function setGoal(id,k,v){const g=S.goals.find(x=>x.id===id);if(!g||g.empId!==SESSION.id){toast('Access denied');return}g[k]=v;save();render()}
+function delGoal(id){const g=S.goals.find(x=>x.id===id);if(!g||g.empId!==SESSION.id){toast('Access denied');return}S.goals=S.goals.filter(x=>x!==g);save();render()}
+function openSlip(m){ui.slip=m;const s=my.payslips().find(x=>x.month===m);if(s){audit('Viewed own payslip for '+m);mark('payslip');save()}render()}
+function setManager(id,mid){if(mid===id){toast('Someone cannot report to themselves.');render();return}
+  let cur=mid,guard=0;while(cur&&guard++<50){if(cur===id){toast('That would create a loop in the reporting line.');render();return}cur=emp(cur)?.managerId}
+  const e=emp(id);e.managerId=mid;audit(`Changed reporting line: ${e.name} now reports to ${mid?emp(mid).name:'no one'}`);save();toast('Reporting line updated');render()}
+
+/* ---------- employee portal screens ---------- */
+const PS={
+me:{t:'My dashboard',th:'หน้าหลักของฉัน',r(){
+  const e=ME();const slip=my.payslips()[0];const open=my.goals().filter(g=>g.status!=='Done').length;
+  const next=(S.holidays||[]).filter(h=>h.date>=today()).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const mgr=isMgr(e.id);const pend=mgr?my.teamLeaves().filter(l=>l.status==='Pending').length:0;
+  return `<h1>สวัสดี ${esc(e.name)}</h1><p class="sub">${posT(e.positionId)}, ${esc(unit(pos(e.positionId)?.unit)?.name)}</p>
+  <div class="stats"><a class="stat" href="#me-leave"><b>${leaveLeft(e.id,'Annual')}</b><span>Annual leave days left</span></a><a class="stat" href="#me-pay"><b>${slip?money(slip.line.net):'None'}</b><span>${slip?'Net pay, '+mname(slip.month):'No payslips yet'}</span></a><a class="stat" href="#me-goals"><b>${open}</b><span>Open goals</span></a>${mgr?`<a class="stat" href="#team-leave"><b>${pend}</b><span>Team requests to approve</span></a>`:`<a class="stat" href="#me-cal"><b style="font-size:17px">${next?fmtD(next.date):'None'}</b><span>${next?esc(next.name):'No more holidays this year'}</span></a>`}</div>
+  <div class="grid2" style="align-items:start">
+   <div class="panel"><h3>What this account can't see</h3><ul class="note" style="margin:0;padding-left:18px"><li>Other employees' salaries and payslips</li><li>Other employees' home address, bank account and emergency contact</li><li>Recruitment, hiring, payroll runs and exits</li><li>Company-wide dashboards and totals</li>${mgr?'<li>Anyone outside your own direct reports</li>':"<li>Colleagues' leave and performance</li>"}</ul></div>
+   <div class="panel lab"><h3>Lab notes</h3><p class="note" style="margin:0 0 8px">You're signed in as <b>${roleOf()}</b>. Compare this menu with the HR admin's. Then try to reach an HR page directly:</p>
+    <div class="inline"><a class="btn g s" href="#payroll">Open HR payroll</a><a class="btn g s" href="#positions">Open position management</a>${mgr?'':'<a class="btn g s" href="#team">Open a manager page</a>'}</div>
+    <p class="note" style="margin:8px 0 0">Each attempt is checked against your role and written to the audit log that HR can review.</p></div>
+  </div>`}},
+'me-profile':{t:'My profile',th:'ข้อมูลส่วนตัวและประวัติการทำงาน',r(){
+  const e=ME();const yrs=((Date.now()-new Date(e.hireDate))/31557600000);
+  return `<div class="grid2" style="align-items:start">
+  <div class="panel"><h3>Work information</h3><dl class="kv"><dt>Employee code</dt><dd>${esc(e.code)}</dd><dt>Position</dt><dd>${posT(e.positionId)}</dd><dt>Unit</dt><dd>${esc(unit(pos(e.positionId)?.unit)?.name)}</dd><dt>Reports to</dt><dd>${mgrName(e.managerId)}</dd><dt>Start date</dt><dd>${fmtD(e.hireDate)} (${yrs<1?Math.max(0,Math.round(yrs*12))+' months':yrs.toFixed(1)+' years'})</dd><dt>Monthly salary</dt><dd>${money(e.salary)} <span class="m" style="font-size:12px">visible only to you and HR</span></dd></dl>
+  <p class="note" style="margin:10px 0 0">These fields are read-only. Changes to your position, salary or start date go through HR.</p></div>
+  <div class="panel"><h3>Contact and payment details</h3><form class="add" style="border:0;padding:0;margin:0" onsubmit="return saveMyProfile(event)">${[['phone','Mobile phone'],['address','Home address'],['bank','Bank account for salary'],['emergency','Emergency contact']].map(f=>fieldHtml({k:f[0],l:f[1],v:e[f[0]],req:1,wide:f[0]==='address'})).join('')}<div><button class="btn">Save my details</button></div></form></div></div>
+  <h2>Contracts</h2>${table(['Type','Start','End','Status'],my.contracts().map(k=>[pill(k.type),fmtD(k.start),k.end?fmtD(k.end):'Open-ended',pill(k.status)]),'No contracts on file.')}
+  <h2>Training history</h2>${table(['Course','Hours','Status','Score'],my.training().map(n=>{const c=S.courses.find(x=>x.id===n.courseId);return [esc(c?.title),c?.hours,pill(n.status),n.score===''?'None':n.score]}),'No training yet.',[1,3])}`}},
+'me-leave':{t:'My leave',th:'คำขอลาและวันลาคงเหลือ',r(){
+  const e=ME();const appr=e.managerId?esc(emp(e.managerId)?.name):'HR';
+  return `<div class="stats">${Object.keys(QUOTA).map(t=>`<div class="stat"><b>${leaveLeft(e.id,t)}<small style="font-size:14px;font-weight:400"> / ${QUOTA[t]}</small></b><span>${t} days left${leaveUsed(e.id,t,'Pending')?`, ${leaveUsed(e.id,t,'Pending')} pending`:''}</span></div>`).join('')}</div>
+  <form class="add" onsubmit="return submitLeave(event)">${fieldHtml({k:'type',l:'Leave type',o:Object.keys(QUOTA),req:1})}${fieldHtml({k:'from',l:'From',t:'date',req:1})}${fieldHtml({k:'to',l:'To',t:'date',req:1})}${fieldHtml({k:'reason',l:'Reason',req:1})}<div><button class="btn">Send to ${appr}</button></div></form>
+  <p class="note">Working days exclude weekends and company holidays. Requests go to your manager${e.managerId?'':' (you have none, so HR decides)'}.</p>
+  ${table(['Type','From','To','Working days','Reason','Approver','Status',''],my.leaves().slice().reverse().map(l=>[esc(l.type),fmtD(l.from),fmtD(l.to),workDays(l.from,l.to),esc(l.reason),l.decidedBy?whoName(l.decidedBy):(l.approver?whoName(l.approver):'HR'),pill(l.status),l.status==='Pending'?`<button class="btn g s" onclick="cancelLeave('${l.id}')">Cancel</button>`:'']),'You have no leave requests yet.',[3])}`}},
+'me-pay':{t:'My payslips',th:'สลิปเงินเดือน',r(){
+  const list=my.payslips();const s=list.find(x=>x.month===ui.slip);
+  let slip='';if(s){const L=s.line,e=ME();const y=s.month.slice(0,4);const ytd=list.filter(x=>x.month.startsWith(y)&&x.month<=s.month).reduce((a,x)=>({g:a.g+x.line.gross,t:a.t+x.line.tax,s:a.s+x.line.sso}),{g:0,t:0,s:0});
+    slip=`<div class="panel slip"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><h3 style="margin:0">Siam Craft Co., Ltd.</h3><span class="note">Payslip ใบแจ้งเงินเดือน, ${mname(s.month)}</span></div><button class="btn g s" onclick="ui.slip='';render()">Close</button></div>
+    <dl class="kv" style="margin:12px 0"><dt>Employee</dt><dd>${esc(e.name)} (${esc(e.code)})</dd><dt>Position</dt><dd>${posT(e.positionId)}</dd><dt>Pay date</dt><dd>${fmtD(s.date)}</dd><dt>Paid to</dt><dd>${esc(e.bank)||'<span class="m">No bank account on file</span>'}</dd></dl>
+    ${table(['Earnings','Amount'],[['Salary',money(L.salary)],['Overtime',money(L.ot)],['Bonus',money(L.bonus)],Object.assign(['<b>Gross pay</b>',money(L.gross)],{cls:'tot'})],'',[1])}<div style="height:10px"></div>
+    ${table(['Deductions','Amount'],[['Social security',money(L.sso)],['Withholding tax',money(L.tax)],Object.assign(['<b>Net pay</b>',`<b>${money(L.net)}</b>`],{cls:'tot'})],'',[1])}
+    <p class="note" style="margin:10px 0 0">Year to date ${y}: gross ${money(ytd.g)}, tax ${money(ytd.t)}, social security ${money(ytd.s)}.</p></div><div style="height:16px"></div>`}
+  return slip+table(['Pay month','Pay date','Gross','Net pay',''],list.map(x=>[mname(x.month),fmtD(x.date),money(x.line.gross),`<b>${money(x.line.net)}</b>`,`<button class="btn ${ui.slip===x.month?'t':'g'} s" onclick="openSlip('${x.month}')">View payslip</button>`]),'No payslips yet. They appear here after HR runs payroll.',[2,3])+
+  `<p class="note">Each payroll run holds a line for every employee, but this screen only ever receives your own line.</p>`}},
+'me-goals':{t:'My goals',th:'เป้าหมายและแผนพัฒนาตนเอง',r(){
+  const e=ME();const a=apprOf(e.id);const cp=S.careers.filter(c=>c.empId===e.id);
+  return `<div class="grid2" style="align-items:start"><div class="panel"><h3>Latest appraisal</h3>${a?`<p style="margin:0;font-size:28px;font-weight:600">${a.grade} <small style="font-size:14px;font-weight:400" class="m">${a.final.toFixed(2)} out of 5</small></p><p class="note" style="margin:4px 0 0">KPI result ${a.nk?Math.round(a.kp*100)+'%':'none'}, 360 average ${a.nf?a.f.toFixed(1):'none'}. You see your own score only, not the individual raters.</p>`:'<p class="note" style="margin:0">No appraisal yet.</p>'}</div>
+  <div class="panel"><h3>Career plan</h3>${cp.length?cp.map(c=>`<dl class="kv"><dt>Next role</dt><dd>${posT(c.target)}</dd><dt>Timeline</dt><dd>${esc(c.timeline)}</dd><dt>Development</dt><dd>${esc(c.action)}</dd></dl>`).join(''):'<p class="note" style="margin:0">No career plan yet. Talk with your manager or HR.</p>'}</div></div>
+  <h2>KPIs set by HR</h2>${table(['KPI','Weight','Target','Actual','Achieved'],my.kpis().map(k=>{const p=Math.round((+k.actual||0)/(+k.target||1)*100);return [esc(k.name),k.weight+'%',num(k.target),num(k.actual),`<div style="display:flex;gap:8px;align-items:center"><div class="bar" style="width:90px"><i style="width:${Math.min(p,100)}%"></i></div>${p}%</div>`]}),'No KPIs set for you yet.',[1,2,3])}
+  <h2>My personal goals</h2><form class="add" onsubmit="return addGoal(event)">${fieldHtml({k:'title',l:'Goal',req:1,wide:1,ph:'Finish the Excel for HR analytics course'})}${fieldHtml({k:'type',l:'Type',o:['Development','Performance','Wellbeing'],req:1})}${fieldHtml({k:'due',l:'Target date',t:'date',req:1})}<div><button class="btn">Add goal</button></div></form>
+  ${table(['Goal','Type','Target date','Status',''],my.goals().map(g=>[esc(g.title),esc(g.type),fmtD(g.due),`<select aria-label="Status" onchange="setGoal('${g.id}','status',this.value)">${optHtml(['Not started','In progress','Done'],g.status)}</select>`,`<button class="btn g s" onclick="delGoal('${g.id}')">Delete</button>`]),'No personal goals yet.')}`}},
+'me-cal':{t:'Holiday calendar',th:'ปฏิทินวันหยุด',r(){
+  const m=ui.calM||today().slice(0,7);ui.calM=m;const[y,mm]=m.split('-').map(Number);const first=new Date(y,mm-1,1);const dim=new Date(y,mm,0).getDate();const off=(first.getDay()+6)%7;
+  const pad=x=>String(x).padStart(2,'0');const H={};(S.holidays||[]).forEach(h=>(H[h.date]=H[h.date]||[]).push(h));
+  const mgr=isMgr(SESSION.id);const evs=[...my.leaves().map(l=>({l,me:true})),...(mgr?my.teamLeaves().map(l=>({l,me:false})):[])].filter(x=>['Approved','Pending'].includes(x.l.status));
+  let cells=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<div class="hd">${d}</div>`).join('')+'<div></div>'.repeat(off);
+  for(let d=1;d<=dim;d++){const iso=`${y}-${pad(mm)}-${pad(d)}`;const w=(off+d-1)%7;const hs=H[iso]||[];const ls=evs.filter(x=>iso>=x.l.from&&iso<=x.l.to&&w<5&&!hs.length);
+    cells+=`<div class="d ${w>4?'we':''} ${hs.length?'hol':''} ${iso===today()?'today':''}"><b>${d}</b>${hs.map(h=>`<span class="ev h" title="${esc(h.name)}">${esc(h.th||h.name)}</span>`).join('')}${ls.map(x=>`<span class="ev l">${x.me?'You':esc(emp(x.l.empId)?.name.split(' ')[0])}: ${esc(x.l.type)}${x.l.status==='Pending'?' (pending)':''}</span>`).join('')}</div>`}
+  const nav=k=>{const d=new Date(y,mm-1+k,1);return d.getFullYear()+'-'+pad(d.getMonth()+1)};
+  return `<div class="inline" style="margin-bottom:12px;align-items:center"><button class="btn g s" onclick="ui.calM='${nav(-1)}';render()" aria-label="Previous month">Previous</button><h2 style="margin:0;min-width:180px;text-align:center">${mname(m)}</h2><button class="btn g s" onclick="ui.calM='${nav(1)}';render()" aria-label="Next month">Next</button><span class="note">${mgr?'Shows company holidays, your leave and your team\'s leave.':'Shows company holidays and your own leave only.'}</span></div>
+  <div class="tw" style="padding:8px"><div class="cal">${cells}</div></div>
+  <h2>Company holidays ${y}</h2>${table(['Date','Day','Holiday'],(S.holidays||[]).filter(h=>h.date.startsWith(String(y))).sort((a,b)=>a.date.localeCompare(b.date)).map(h=>[fmtD(h.date),new Date(h.date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'long'}),`${esc(h.name)}${h.th?`<br><span class="m" style="font-size:12px">${esc(h.th)}</span>`:''}`]),'No holidays set for this year.')}`}},
+'me-dir':{t:'Employee directory',th:'ทำเนียบพนักงาน',r(){
+  const q=(ui.dq||'').toLowerCase();const list=active().filter(e=>!q||(e.name+' '+(pos(e.positionId)?.title||'')+' '+(unit(pos(e.positionId)?.unit)?.name||'')).toLowerCase().includes(q));
+  return `<div class="hint" style="margin-top:0">The directory shows work details only. <b>Not shown for anyone:</b> salary, home address, bank account, emergency contact and personal mobile number. This is field-level access control: the same employee record, with only some fields released to your role.</div>
+  <input class="search" type="search" placeholder="Search name, position or unit" value="${esc(ui.dq||'')}" oninput="ui.dq=this.value;clearTimeout(ui.t);ui.t=setTimeout(()=>{render();const s=document.querySelector('.search');s.focus();s.setSelectionRange(s.value.length,s.value.length)},250)">
+  ${table(['Name','Position','Unit','Reports to','Work email'],list.map(e=>[esc(e.name)+(e.id===SESSION.id?' <span class="pill">You</span>':''),posT(e.positionId),esc(unit(pos(e.positionId)?.unit)?.name),e.managerId?esc(emp(e.managerId)?.name):'None',esc(e.email)]),'No one matches that search.')}`}},
+team:{mgr:1,t:'My team',th:'ทีมของฉัน',r(){
+  const t=my.team();const sel=t.find(x=>x.id===ui.tm);
+  let card='';if(sel){const a=apprOf(sel.id);card=`<div class="panel" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><h3>${esc(sel.name)}</h3><button class="btn g s" onclick="ui.tm='';render()">Close</button></div>
+    <div class="grid2"><dl class="kv"><dt>Position</dt><dd>${posT(sel.positionId)}</dd><dt>Start date</dt><dd>${fmtD(sel.hireDate)}</dd><dt>Work email</dt><dd>${esc(sel.email)}</dd><dt>Leave left</dt><dd>${Object.keys(QUOTA).map(k=>`${k} ${leaveLeft(sel.id,k)}`).join(', ')}</dd><dt>Appraisal</dt><dd>${a?a.grade+' ('+a.final.toFixed(2)+')':'None yet'}</dd></dl>
+    <div>${table(['Goal','Status'],S.goals.filter(g=>g.empId===sel.id).map(g=>[esc(g.title),pill(g.status)]),'No personal goals.')}</div></div>
+    <p class="note" style="margin:10px 0 0">Hidden from managers here: salary, payslips, home address, bank account and emergency contact. Pay decisions go through HR.</p></div>`}
+  return card+table(['Name','Position','Annual leave left','Pending requests','KPI result','Courses done',''],t.map(e=>{const a=apprOf(e.id);return [esc(e.name),posT(e.positionId),leaveLeft(e.id,'Annual'),S.leaves.filter(l=>l.empId===e.id&&l.status==='Pending').length,a&&a.nk?Math.round(a.kp*100)+'%':'None',S.enrollments.filter(n=>n.empId===e.id&&n.status==='Completed').length,`<button class="btn g s" onclick="ui.tm='${e.id}';render()">View</button>`]}),'',[2,3,4,5])+
+  `<p class="note">You see your ${t.length} direct report${t.length===1?'':'s'} only. People further down the line, and everyone in other teams, aren't included.</p>`}},
+'team-leave':{mgr:1,t:'Team leave approvals',th:'อนุมัติการลาของทีม',r(){
+  const all=my.teamLeaves();const pend=all.filter(l=>l.status==='Pending');const done=all.filter(l=>l.status!=='Pending').slice().reverse();
+  return `<h2 style="margin-top:0">Waiting for you (${pend.length})</h2>`+table(['Employee','Type','From','To','Working days','Reason','Days left after',''],pend.map(l=>[empName(l.empId),esc(l.type),fmtD(l.from),fmtD(l.to),workDays(l.from,l.to),esc(l.reason),leaveLeft(l.empId,l.type)-workDays(l.from,l.to),`<span style="display:flex;gap:6px"><button class="btn t s" onclick="mgrDecide('${l.id}','Approved')">Approve</button><button class="btn g s" onclick="mgrDecide('${l.id}','Rejected')">Reject</button></span>`]),'Nothing waiting for your approval.',[4,6])+
+  `<h2>Decided</h2>`+table(['Employee','Type','From','To','Decided by','Status'],done.map(l=>[empName(l.empId),esc(l.type),fmtD(l.from),fmtD(l.to),l.decidedBy?whoName(l.decidedBy):'',pill(l.status)]),'No decisions yet.')}}
+};
+const fmtD=d=>d?new Date(d+(String(d).length===10?'T00:00:00':'')).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
+
+/* ---------- HR system administration ---------- */
+const PERM=[['Own profile and work history','Own','Own','All employees'],['Edit contact and bank details','Own','Own','All employees'],['Salary and payslips','Own only','Own only, not team','All employees'],['Leave requests','Submit own','Submit own, decide for direct reports','Decide for anyone'],['Leave balances','Own','Own and direct reports','All employees'],['KPIs and appraisal results','Own, read only','Own and direct reports','Set and edit for all'],['Personal goals','Own, create and edit','Own, view direct reports','View all'],['Employee directory','Work fields only','Work fields only','All fields'],["Others' home address, bank and emergency contact",'No','No','Yes'],['Recruitment, hiring and exits','No','No','Yes'],['Payroll, tax and social security','No','No','Yes'],['Company-wide dashboard','No','No','Yes'],['Reporting lines and accounts','No','No','Yes'],['Audit log','No','No','Yes']];
+const SY={
+'sys-accounts':{t:'Accounts and reporting lines',th:'บัญชีผู้ใช้และสายบังคับบัญชา',d:'Each active employee has an account. Their role comes from the reporting line: anyone with direct reports gets manager access. Exiting an employee disables their account.',r(){
+  const ll=S.lastLogin||{};const rows=[['<b>HR administrator</b>','','HR admin','',"",pill('Active'),ago(ll.hr)]];
+  S.employees.forEach(e=>{const act=e.status==='Active';const opts=[['','None (top of organization)'],...active().filter(x=>x.id!==e.id).map(x=>[x.id,x.name])];
+    rows.push([`${esc(e.name)}<br><span class="m" style="font-size:12px">${esc(e.code)}, ${posT(e.positionId)}</span>`,act?`<select aria-label="Reports to" onchange="setManager('${e.id}',this.value)">${optHtml(opts,e.managerId||'')}</select>`:'',act?(isMgr(e.id)?'Manager':'Employee'):'None',reports(e.id).length||'',act?'':'Exited',act?pill('Active'):pill('Disabled'),ago(ll[e.id])])});
+  return table(['Account','Reports to','Role','Direct reports','','Status','Last sign-in'],rows,'',[3])}},
+'sys-perm':{t:'Permission matrix',th:'ตารางสิทธิ์การเข้าถึง',d:'What each role may see or do. Sign in as each role and check that the system matches this table. The rule behind it is least privilege: each role gets only what its job needs.',r(){
+  const c=v=>['Yes','No'].includes(v)?pill(v):esc(v);
+  return table(['Data or function','Employee','Manager','HR admin'],PERM.map(r=>[esc(r[0]),c(r[1]),c(r[2]),c(r[3])]))}},
+'sys-holidays':{t:'Holiday calendar',th:'ปฏิทินวันหยุดบริษัท',d:'Employees see these dates in their portal, and leave requests skip them when counting working days. Thai labour law requires at least 13 traditional holidays a year, including National Labour Day. The defaults follow the 2026 public holidays for private companies.',r(){
+  return crud('sys-holidays',{coll:'holidays',fields:[{k:'date',l:'Date',t:'date',req:1},{k:'name',l:'Holiday name',req:1},{k:'th',l:'Thai name'}],after:()=>S.holidays.sort((a,b)=>a.date.localeCompare(b.date)),
+  cols:[['Date',r=>fmtD(r.date)],['Day',r=>new Date(r.date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short'})],['Holiday',r=>esc(r.name)],['Thai name',r=>esc(r.th)]],add:'Add holiday',msg:'Holiday added'})+`<p class="note">${(S.holidays||[]).filter(h=>h.date.startsWith('2026')).length} holidays set for 2026.</p>`}},
+'sys-audit':{t:'Audit log',th:'บันทึกการเข้าถึงระบบ',d:'Every sign-in, sensitive view and blocked attempt is recorded. In a real system this log is how HR proves who saw whose data.',r(){
+  const rows=(S.audit||[]).filter(a=>!ui.auditBad||!a.ok);
+  return `<label class="f" style="flex-direction:row;align-items:center;gap:8px;font-size:14px;color:var(--text);margin-bottom:10px"><input type="checkbox" ${ui.auditBad?'checked':''} onchange="ui.auditBad=this.checked;render()">Show blocked attempts only</label>`+
+  table(['Time','Account','Action','Result'],rows.map(a=>[fmtT(a.at),whoName(a.who),esc(a.action),pill(a.ok?'Allowed':'Blocked')]),'Nothing recorded yet.')}}
+};
+const goalsHR=()=>`<h2>Goals employees set for themselves</h2>`+table(['Employee','Goal','Type','Target date','Status'],S.goals.map(g=>[empName(g.empId),esc(g.title),esc(g.type),fmtD(g.due),pill(g.status)]),'No employee goals yet. Employees add them in the portal.');
+
+/* ---------- login and access denied ---------- */
+function loginScreen(){
+  const act=active();const mg=act.filter(e=>isMgr(e.id)),em=act.filter(e=>!isMgr(e.id)),ex=S.employees.filter(e=>e.status!=='Active');
+  const card=e=>`<button class="acct" onclick="signIn('emp','${e.id}')"><b>${esc(e.name)}</b><span class="note">${posT(e.positionId)}</span>${isMgr(e.id)?`<span class="pill">Manages ${reports(e.id).length}</span>`:''}</button>`;
+  return `<div style="max-width:980px"><h1>Sign in to Siam Craft HR</h1><p class="sub">เข้าสู่ระบบ (จำลอง) เลือกบัญชีที่ต้องการใช้งาน</p>
+  <div class="hint">This is a practice sign-in, so there are no passwords. Choose who you want to be. Each account only sees what its role allows, so sign in as different people and compare.</div>
+  <h2>HR department</h2><div class="accts"><button class="acct" onclick="signIn('hr')"><b>HR administrator</b><span class="note">Full access to all 7 HR modules and system administration</span><span class="pill">HR admin</span></button></div>
+  <h2>Managers <span class="m" style="font-weight:400;font-size:14px">own data plus direct reports</span></h2><div class="accts">${mg.map(card).join('')}</div>
+  <h2>Employees <span class="m" style="font-weight:400;font-size:14px">own data only</span></h2><div class="accts">${em.map(card).join('')}</div>
+  ${ex.length?`<h2>Disabled accounts</h2><div class="accts">${ex.map(e=>`<button class="acct" disabled aria-disabled="true"><b>${esc(e.name)}</b><span class="note">Account disabled after exit</span></button>`).join('')}</div>`:''}
+  <h2>Student tools</h2><div class="inline"><a class="btn t" href="#progress">My progress and export</a><button class="btn g" onclick="armed(this,resetData)">Reset practice company</button><a class="btn g" href="#verify">For instructors: check reports</a></div></div>`}
+function deniedPage(route,reason){
+  const name=ITEM[route]?.en||SY[route]?.t||PS[route]?.t||route;
+  const logKey=route+'|'+(SESSION?SESSION.kind+(SESSION.id||''):'');
+  if(ui.lastDeny!==logKey){ui.lastDeny=logKey;audit('Blocked: tried to open '+name,false);if(SESSION&&SESSION.kind==='emp')mark('denied');save()}
+  return `<div class="denied"><p class="code403">403</p><h1>Access denied</h1><p class="sub">ไม่มีสิทธิ์เข้าถึงหน้านี้</p>
+  <div class="panel" style="margin-top:16px"><dl class="kv"><dt>Page requested</dt><dd>${esc(name)}</dd><dt>Signed in as</dt><dd>${SESSION.kind==='hr'?'HR administrator':esc(ME()?.name)} (${roleOf()})</dd><dt>Why</dt><dd>${reason}</dd></dl></div>
+  <div class="hint">The role check ran <b>before</b> any data for this page was loaded, so nothing from it reached your screen. This attempt was written to the audit log. Hiding a menu item isn't enough on its own; the system has to refuse the request itself.</div>
+  <a class="btn" href="#${SESSION.kind==='hr'?'home':'me'}">Back to my dashboard</a></div>`}
+
+/* ---------- render ---------- */
+function renderHeader(){let h='';
+  if(SESSION)h=`<span class="tag">${roleOf()}</span><span class="who">Signed in as <b style="color:#fff">${SESSION.kind==='hr'?'HR administrator':esc(ME()?.name)}</b></span><button onclick="signOut()">Sign out</button>`;
+  document.getElementById('hdr').innerHTML=h}
+function modNav(route){return MODULES.map(m=>`<div class="mod ${ui.openMod===m.n?'open':''}"><button class="modh" aria-expanded="${ui.openMod===m.n}" onclick="ui.openMod=ui.openMod===${m.n}?0:${m.n};render()"><span class="num">${m.n}</span><span>${m.en}<span class="th">${m.th}</span></span></button><div class="items">${m.items.map(i=>`<a class="it ${route===i[0]?'act':''}" href="#${i[0]}">${i[1]}<span>${i[2]}</span></a>`).join('')}</div></div>`).join('')}
+const navLink=(k,t,th,route)=>`<a class="it ${route===k?'act':''}" href="#${k}">${t}<span>${th}</span></a>`;
+function render(){
+  const raw=location.hash.slice(1);const side=document.getElementById('side'),main=document.getElementById('main');
+  if(SESSION&&SESSION.kind==='emp'&&!ME())SESSION=null;
+  document.body.classList.toggle('portal',!!(SESSION&&SESSION.kind==='emp'));
+  renderHeader();
+  if(MODE==='loading'){side.innerHTML='';main.innerHTML='<p class="empty">Loading…</p>';return}
+  if(raw==='progress'||raw==='verify'){
+    side.innerHTML=`<a class="homelink" href="#${SESSION?(SESSION.kind==='hr'?'home':'me'):'login'}">Back to Siam Craft HR</a><a class="homelink ${raw==='progress'?'act':''}" href="#progress">My progress and export</a><a class="homelink ${raw==='verify'?'act':''}" href="#verify">For instructors: check reports</a>`;
+    main.innerHTML=SC[raw].r();return}
+  if(!SESSION){side.innerHTML='';main.innerHTML=loginScreen();return}
+  if(SESSION.kind==='emp'){
+    const route=raw&&!['home','login'].includes(raw)?raw:'me';const mgr=isMgr(SESSION.id);
+    side.innerHTML=`<p class="navh">My HR</p>`+['me','me-profile','me-leave','me-pay','me-goals'].map(k=>navLink(k,PS[k].t,PS[k].th,route)).join('')+
+      `<p class="navh">Company</p>`+['me-cal','me-dir'].map(k=>navLink(k,PS[k].t,PS[k].th,route)).join('')+
+      (mgr?`<p class="navh">My team</p>`+['team','team-leave'].map(k=>navLink(k,PS[k].t,PS[k].th,route)).join(''):'');
+    let h;
+    if(PS[route]&&(!PS[route].mgr||mgr)){ui.lastDeny='';const sc=PS[route];try{h=(route==='me'?'':`<h1>${sc.t}</h1><p class="sub">${sc.th}</p><div style="height:16px"></div>`)+sc.r()}catch(err){console.error(err);h='<p class="empty">This screen could not load.</p>'}}
+    else if(PS[route])h=deniedPage(route,'Team pages are only for managers, and only cover their own direct reports. Your account has no direct reports.');
+    else if(ITEM[route]||SY[route])h=deniedPage(route,`This page is part of the HR admin system. Your role is ${roleOf()}, which doesn't include HR admin permissions.`);
+    else h=PS.me.r();
+    main.innerHTML=h;return}
+  /* HR admin */
+  const route=raw&&raw!=='login'?raw:'home';
+  const it=ITEM[route];if(it)ui.openMod=it.mod.n;
+  side.innerHTML=`<a class="homelink ${route==='home'||(!it&&!SY[route])?'act':''}" href="#home">Home and exercises</a>`+modNav(route)+`<p class="navh">System administration</p>`+Object.keys(SY).map(k=>navLink(k,SY[k].t,SY[k].th,route)).join('')+`<a class="homelink" href="#progress" style="margin-top:12px;font-weight:400;font-size:13px;color:var(--muted)">Student tools: progress and export</a>`;
+  if(PS[route]){main.innerHTML=deniedPage(route,"This page belongs to the employee portal. The HR administrator account isn't an employee, so it has no payslips, leave or goals of its own.");return}
+  ui.lastDeny='';
+  if(SY[route]){const sc=SY[route];main.innerHTML=`<p class="crumb">System administration</p><h1>${sc.t}</h1><p class="sub">${sc.th}</p><div class="hint">${sc.d}</div>${sc.r()}`;return}
+  const ctx=route==='home'?`<div class="ctx warn"><span>Your work is saved only in this browser on this device. <a href="#progress">Download your progress report</a> regularly: it's your backup and what you submit to your instructor.</span></div>`:'';
+  const sc=SC[route]||SC.home;let h;
+  try{h=sc.r()}catch(err){console.error(err);h='<p class="empty">This screen could not load its data. Go back to Home and try again.</p>'}
+  main.innerHTML=ctx+(route==='home'||!it?h:`<p class="crumb">Module ${it.mod.n}: ${it.mod.en}</p><h1>${it.en}</h1><p class="sub">${it.th}</p>${sc.d?`<div class="hint">${sc.d}</div>`:''}${h}`);
+}
+window.addEventListener('hashchange',()=>{document.body.classList.remove('nav');window.scrollTo(0,0);render()});
+
+/* ---------- boot ---------- */
+function boot(){MODE='solo';if(!S.student)S.student={name:'',sid:'',section:''};if(!S.started)S.started=Date.now();if(SESSION&&SESSION.kind==='emp'&&!ME())SESSION=null;render()}
+
+render();
+boot();
+
+</script>
+</body>
+</html>
